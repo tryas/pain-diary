@@ -1,10 +1,10 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { PainEntry, PainPoint } from "@shared/schema";
+import type { PainEntry, PainPoint, PainSnapshot } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Trash2, ChevronRight, Activity } from "lucide-react";
+import { Plus, Trash2, ChevronRight, Activity, TrendingDown, TrendingUp, Minus as TrendFlat } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -19,10 +19,42 @@ function getPainPoints(entry: PainEntry): PainPoint[] {
   try { return JSON.parse(entry.painPoints); } catch { return []; }
 }
 
+// Mini sparkline for card
+function MiniSparkline({ data }: { data: PainSnapshot[] }) {
+  if (data.length < 2) return null;
+  const W = 60, H = 20, PAD = 2;
+  const minV = 0, maxV = 10;
+  const scaleX = (i: number) => PAD + (i / (data.length - 1)) * (W - PAD * 2);
+  const scaleY = (v: number) => PAD + ((maxV - v) / (maxV - minV)) * (H - PAD * 2);
+  const points = data.map((s, i) => `${scaleX(i)},${scaleY(s.intensity)}`).join(" ");
+  const last = data[data.length - 1];
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-16 h-5 flex-shrink-0">
+      <polyline points={points} fill="none" stroke={intensityColor(last.intensity)} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function EntryCard({ entry, onDelete }: { entry: PainEntry; onDelete: (id: number) => void }) {
   const points = getPainPoints(entry);
   const maxIntensity = points.length > 0 ? Math.max(...points.map((p) => p.intensity)) : 0;
   const date = parseISO(entry.date);
+
+  // Fetch snapshots for trend
+  const { data: snapshots = [] } = useQuery<PainSnapshot[]>({
+    queryKey: [`/api/entries/${entry.id}/snapshots`],
+    queryFn: () => fetch(`/api/entries/${entry.id}/snapshots`).then(r => r.json()),
+    staleTime: 30_000,
+  });
+
+  // Current intensity: last snapshot or max from pain points
+  const currentIntensity = snapshots.length > 0 ? snapshots[snapshots.length - 1].intensity : maxIntensity;
+  const trend = snapshots.length >= 2
+    ? snapshots[snapshots.length - 1].intensity - snapshots[snapshots.length - 2].intensity
+    : 0;
+
+  const TrendIcon = trend > 0 ? TrendingUp : trend < 0 ? TrendingDown : TrendFlat;
+  const trendColor = trend > 0 ? "text-red-500" : trend < 0 ? "text-green-500" : "text-muted-foreground";
 
   return (
     <div className="bg-card rounded-2xl border border-border/60 overflow-hidden shadow-sm" data-testid={`entry-card-${entry.id}`}>
@@ -36,24 +68,39 @@ function EntryCard({ entry, onDelete }: { entry: PainEntry; onDelete: (id: numbe
                 </span>
               </div>
               <h3 className="font-semibold text-sm leading-tight mb-2 truncate">{entry.title}</h3>
+
+              {/* Pain zones */}
               {points.length > 0 ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {points.slice(0, 4).map((p) => (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {points.slice(0, 3).map((p) => (
                     <span key={p.id} className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-muted border border-border/40">
                       <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: intensityColor(p.intensity) }} />
                       {p.zoneName}
                     </span>
                   ))}
-                  {points.length > 4 && <span className="text-xs text-muted-foreground px-1">+{points.length - 4}</span>}
+                  {points.length > 3 && <span className="text-xs text-muted-foreground px-1">+{points.length - 3}</span>}
                 </div>
               ) : (
                 <span className="text-xs text-muted-foreground italic">Нет отмеченных точек</span>
               )}
+
+              {/* Sparkline + trend */}
+              {snapshots.length >= 2 && (
+                <div className="flex items-center gap-2 mt-1">
+                  <MiniSparkline data={snapshots} />
+                  <span className={`flex items-center gap-0.5 text-xs font-medium ${trendColor}`}>
+                    <TrendIcon className="w-3 h-3" />
+                    {trend > 0 ? `+${trend}` : trend !== 0 ? trend : ""}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{snapshots.length} замер{snapshots.length === 1 ? "" : snapshots.length < 5 ? "а" : "ов"}</span>
+                </div>
+              )}
             </div>
+
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
-              {maxIntensity > 0 && (
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white text-sm" style={{ backgroundColor: intensityColor(maxIntensity) }}>
-                  {maxIntensity}
+              {currentIntensity > 0 && (
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white text-sm" style={{ backgroundColor: intensityColor(currentIntensity) }}>
+                  {currentIntensity}
                 </div>
               )}
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
