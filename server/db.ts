@@ -2,9 +2,7 @@ import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "@shared/schema";
 
-// On Render, use persistent disk at /data; otherwise use project root
-const DB_PATH = process.env.RENDER ? "/data/data.db" : "./data.db";
-const sqlite = new Database(DB_PATH);
+const sqlite = new Database("./data.db");
 export const db = drizzle(sqlite, { schema });
 
 // Create tables if they don't exist
