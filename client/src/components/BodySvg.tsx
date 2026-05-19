@@ -213,11 +213,7 @@ export function BodySvg({
         ))}
       </svg>
 
-      {interactive && (
-        <p className="text-center text-xs text-muted-foreground/60 mt-0.5 pointer-events-none">
-          Нажмите на место боли
-        </p>
-      )}
+
     </div>
   );
 }
