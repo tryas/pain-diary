@@ -19,13 +19,6 @@ const BODY_IMAGES: Record<BodyView, string> = {
   right: bodyRight,
 };
 
-const VIEW_LABEL: Record<BodyView, string> = {
-  front: "Спереди",
-  back: "Сзади",
-  left: "Слева",
-  right: "Справа",
-};
-
 const intensityColor = (intensity: number) => {
   if (intensity <= 3) return "#22c55e";
   if (intensity <= 6) return "#f59e0b";
@@ -44,65 +37,57 @@ export function BodySvg({ view, painPoints, onClickPoint, interactive = true }: 
   };
 
   return (
-    <div className="w-full h-full">
-      {/* Image container with pain point overlay */}
-      <div
-        className={`relative w-full h-full select-none ${interactive ? "cursor-crosshair" : ""}`}
-        onClick={interactive ? handleClick : undefined}
-        data-testid={`body-svg-${view}`}
-      >
-        {/* Body photo */}
-        <img
-          src={BODY_IMAGES[view]}
-          alt={`Тело ${VIEW_LABEL[view]}`}
-          className="w-full h-full object-contain"
-          draggable={false}
-        />
+    <div
+      className={`relative h-full select-none ${interactive ? "cursor-crosshair" : ""}`}
+      onClick={interactive ? handleClick : undefined}
+      data-testid={`body-svg-${view}`}
+    >
+      <img
+        src={BODY_IMAGES[view]}
+        alt={`Тело`}
+        className="h-full w-auto object-contain"
+        draggable={false}
+      />
 
-        {/* Pain point markers — positioned absolutely as % of container */}
-        {viewPoints.map((point) => {
-          const color = intensityColor(point.intensity);
-          return (
+      {viewPoints.map((point) => {
+        const color = intensityColor(point.intensity);
+        return (
+          <div
+            key={point.id}
+            className="absolute"
+            style={{
+              left: `${point.x}%`,
+              top: `${point.y}%`,
+              transform: "translate(-50%, -50%)",
+              pointerEvents: "none",
+            }}
+          >
+            {/* Pulse ring */}
             <div
-              key={point.id}
-              className="absolute"
+              className="absolute rounded-full animate-ping"
               style={{
-                left: `${point.x}%`,
-                top: `${point.y}%`,
+                width: 22, height: 22,
+                left: "50%", top: "50%",
                 transform: "translate(-50%, -50%)",
-                pointerEvents: "none",
+                backgroundColor: color,
+                opacity: 0.35,
+              }}
+            />
+            {/* Badge */}
+            <div
+              className="relative flex items-center justify-center rounded-full font-bold text-white shadow-lg"
+              style={{
+                width: 24, height: 24,
+                backgroundColor: color,
+                border: "2px solid white",
+                fontSize: 10,
               }}
             >
-              {/* Pulse ring */}
-              <div
-                className="absolute rounded-full animate-ping"
-                style={{
-                  width: 24,
-                  height: 24,
-                  left: "50%",
-                  top: "50%",
-                  transform: "translate(-50%, -50%)",
-                  backgroundColor: color,
-                  opacity: 0.35,
-                }}
-              />
-              {/* Core badge */}
-              <div
-                className="relative flex items-center justify-center rounded-full font-bold text-white shadow-lg"
-                style={{
-                  width: 26,
-                  height: 26,
-                  backgroundColor: color,
-                  border: "2px solid white",
-                  fontSize: 10,
-                }}
-              >
-                {point.intensity}
-              </div>
+              {point.intensity}
             </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
