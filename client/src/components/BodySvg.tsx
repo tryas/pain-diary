@@ -1,3 +1,4 @@
+import { useRef, useState, useCallback } from "react";
 import type { BodyView, PainPoint } from "@shared/schema";
 
 import bodyFront from "@assets/body-front.jpg";
@@ -26,40 +27,63 @@ const intensityColor = (intensity: number) => {
 };
 
 export function BodySvg({ view, painPoints, onClickPoint, interactive = true }: BodySvgProps) {
+  const imgRef = useRef<HTMLImageElement>(null);
+  // Track image natural size to detect when it's rendered
+  const [imgLoaded, setImgLoaded] = useState(false);
   const viewPoints = painPoints.filter((p) => p.view === view);
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleClick = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
     if (!onClickPoint) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
     onClickPoint(x, y);
-  };
+  }, [onClickPoint]);
 
   return (
-    <div
-      className={`relative h-full select-none ${interactive ? "cursor-crosshair" : ""}`}
-      onClick={interactive ? handleClick : undefined}
-      data-testid={`body-svg-${view}`}
-    >
+    // Outer container: full height, centers the image horizontally
+    <div className="relative h-full flex justify-center">
+      {/* Image: h-full, w-auto — its actual rendered rect is what we measure */}
       <img
+        ref={imgRef}
         src={BODY_IMAGES[view]}
-        alt={`Тело`}
-        className="h-full w-auto object-contain"
+        alt="Тело"
+        className={`h-full w-auto object-contain select-none ${interactive ? "cursor-crosshair" : ""}`}
         draggable={false}
+        onLoad={() => setImgLoaded(true)}
+        onClick={interactive ? handleClick : undefined}
+        data-testid={`body-svg-${view}`}
       />
 
-      {viewPoints.map((point) => {
+      {/* Pain point dots — positioned relative to the outer container,
+          but coordinates are in image space, so we convert using img rect */}
+      {imgLoaded && viewPoints.map((point) => {
+        const imgEl = imgRef.current;
+        if (!imgEl) return null;
+        const containerEl = imgEl.parentElement;
+        if (!containerEl) return null;
+
+        const imgRect = imgEl.getBoundingClientRect();
+        const containerRect = containerEl.getBoundingClientRect();
+
+        // Image offset within the container (in %)
+        const imgLeftPct = ((imgRect.left - containerRect.left) / containerRect.width) * 100;
+        const imgTopPct = ((imgRect.top - containerRect.top) / containerRect.height) * 100;
+        const imgWPct = (imgRect.width / containerRect.width) * 100;
+        const imgHPct = (imgRect.height / containerRect.height) * 100;
+
+        const dotLeftPct = imgLeftPct + (point.x / 100) * imgWPct;
+        const dotTopPct = imgTopPct + (point.y / 100) * imgHPct;
+
         const color = intensityColor(point.intensity);
         return (
           <div
             key={point.id}
-            className="absolute"
+            className="absolute pointer-events-none"
             style={{
-              left: `${point.x}%`,
-              top: `${point.y}%`,
+              left: `${dotLeftPct}%`,
+              top: `${dotTopPct}%`,
               transform: "translate(-50%, -50%)",
-              pointerEvents: "none",
             }}
           >
             {/* Pulse ring */}
