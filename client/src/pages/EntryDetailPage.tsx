@@ -154,7 +154,7 @@ export default function EntryDetailPage() {
         </div>
       )}
 
-      <div className="flex-1 px-4 py-4 flex flex-col gap-5">
+      <div className="flex-1 px-4 py-3 flex flex-col gap-3">
         {/* Editing mode */}
         {editing && (
           <>
@@ -185,10 +185,7 @@ export default function EntryDetailPage() {
         {/* Tab: Боль */}
         {!editing && activeTab === "pain" && (
           <>
-            <div>
-              <label className="text-sm font-medium mb-2 block">Карта тела</label>
-              <BodyMap painPoints={points} onChange={() => {}} readOnly />
-            </div>
+            <BodyMap painPoints={points} onChange={() => {}} readOnly />
 
             {points.length > 0 && (
               <div className="flex flex-col gap-3">
