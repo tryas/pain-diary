@@ -207,7 +207,7 @@ export const frontZones: AnatomicalZone[] = [
   // Legs still merged at y=54–60%; split starts at y≈59%
   {
     id: "front-groin", name: "Таз / Пах", view: "front",
-    bbox: [27, 54, 73, 60],
+    bbox: [27, 53, 73, 61],
     structures: [
       { id: "iliac-crest",  name: "Гребень подвздошной кости", type: "bone"     },
       { id: "inguinal-lig", name: "Паховая связка",             type: "ligament" },
@@ -219,7 +219,7 @@ export const frontZones: AnatomicalZone[] = [
   // Leg clusters: screen-LEFT x=31–48%, screen-RIGHT x=52–69%
   {
     id: "front-hip-right", name: "Правый тазобедренный сустав", view: "front",
-    bbox: [29, 58, 50, 72],
+    bbox: [29, 59, 50, 79],
     structures: [
       { id: "hip-j-r",     name: "Тазобедренный сустав",        type: "joint"    },
       { id: "iliopsoas-r", name: "Подвздошно-поясничная мышца", type: "muscle"   },
@@ -228,7 +228,7 @@ export const frontZones: AnatomicalZone[] = [
   },
   {
     id: "front-hip-left", name: "Левый тазобедренный сустав", view: "front",
-    bbox: [50, 58, 71, 72],
+    bbox: [50, 59, 71, 79],
     structures: [
       { id: "hip-j",     name: "Тазобедренный сустав",        type: "joint"    },
       { id: "iliopsoas", name: "Подвздошно-поясничная мышца", type: "muscle"   },
@@ -240,7 +240,7 @@ export const frontZones: AnatomicalZone[] = [
   // screen-LEFT x=32–45%, screen-RIGHT x=55–68%
   {
     id: "front-thigh-right", name: "Правое бедро", view: "front",
-    bbox: [30, 70, 47, 82],
+    bbox: [30, 68, 47, 80],
     structures: [
       { id: "quadriceps-r",  name: "Четырёхглавая мышца бедра", type: "muscle" },
       { id: "rectus-fem-r",  name: "Прямая мышца бедра",        type: "muscle" },
@@ -250,7 +250,7 @@ export const frontZones: AnatomicalZone[] = [
   },
   {
     id: "front-thigh-left", name: "Левое бедро", view: "front",
-    bbox: [52, 70, 68, 82],
+    bbox: [52, 68, 68, 80],
     structures: [
       { id: "quadriceps",  name: "Четырёхглавая мышца бедра", type: "muscle" },
       { id: "rectus-fem",  name: "Прямая мышца бедра",        type: "muscle" },
@@ -264,7 +264,7 @@ export const frontZones: AnatomicalZone[] = [
   // screen-LEFT x=33–43%, screen-RIGHT x=57–67%
   {
     id: "front-knee-right", name: "Правое колено", view: "front",
-    bbox: [31, 80, 46, 95],
+    bbox: [31, 78, 46, 92],
     structures: [
       { id: "knee-j-r",       name: "Коленный сустав",               type: "joint"    },
       { id: "patella-r",      name: "Надколенник",                    type: "bone"     },
@@ -275,7 +275,7 @@ export const frontZones: AnatomicalZone[] = [
   },
   {
     id: "front-knee-left", name: "Левое колено", view: "front",
-    bbox: [53, 80, 68, 95],
+    bbox: [53, 78, 68, 92],
     structures: [
       { id: "knee-j",       name: "Коленный сустав",               type: "joint"    },
       { id: "patella",      name: "Надколенник",                    type: "bone"     },
@@ -290,7 +290,7 @@ export const frontZones: AnatomicalZone[] = [
   // screen-LEFT x=33–43%, screen-RIGHT x=57–66%
   {
     id: "front-shin-right", name: "Правая голень", view: "front",
-    bbox: [32, 93, 45, 97],
+    bbox: [32, 90, 45, 97],
     structures: [
       { id: "tibialis-r", name: "Передняя большеберцовая мышца", type: "muscle" },
       { id: "tibia-r",    name: "Большеберцовая кость",          type: "bone"   },
@@ -299,7 +299,7 @@ export const frontZones: AnatomicalZone[] = [
   },
   {
     id: "front-shin-left", name: "Левая голень", view: "front",
-    bbox: [54, 93, 68, 97],
+    bbox: [54, 90, 68, 97],
     structures: [
       { id: "tibialis", name: "Передняя большеберцовая мышца", type: "muscle" },
       { id: "tibia",    name: "Большеберцовая кость",          type: "bone"   },
