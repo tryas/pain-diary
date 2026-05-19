@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import { Plus, Trash2, Pill, Dumbbell, Stethoscope, MoreHorizontal, ThumbsUp, Minus, ThumbsDown, MapPin } from "lucide-react";
+import { Plus, Trash2, Pill, Dumbbell, Stethoscope, MoreHorizontal, ThumbsUp, Minus, ThumbsDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Treatment, PainPoint } from "@shared/schema";
+import type { Treatment } from "@shared/schema";
 import { format, parseISO } from "date-fns";
 import { ru } from "date-fns/locale";
 
@@ -28,28 +28,22 @@ const TYPE_LABELS: Record<string, string> = {
   medication: "Лекарство", procedure: "Процедура", exercise: "Упражнение", other: "Другое",
 };
 
-const intensityColor = (v: number) => v <= 3 ? "#22c55e" : v <= 6 ? "#f59e0b" : "#ef4444";
-
 interface Props {
   entryId: number;
-  painPoints?: PainPoint[];
 }
 
-export function TreatmentSection({ entryId, painPoints = [] }: Props) {
+export function TreatmentSection({ entryId }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [type, setType] = useState<string>("medication");
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [result, setResult] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 16));
-  const [selectedPointId, setSelectedPointId] = useState<string>("");
 
   const { data: treatments = [] } = useQuery<Treatment[]>({
     queryKey: [`/api/entries/${entryId}/treatments`],
     queryFn: () => fetch(`/api/entries/${entryId}/treatments`).then((r) => r.json()),
   });
-
-  const selectedPoint = painPoints.find((p) => p.id === selectedPointId);
 
   const createMutation = useMutation({
     mutationFn: () =>
@@ -62,15 +56,12 @@ export function TreatmentSection({ entryId, painPoints = [] }: Props) {
           notes,
           result,
           date: new Date(date).toISOString(),
-          painPointId: selectedPointId,
-          painPointName: selectedPoint?.zoneName ?? "",
         }),
       }).then((r) => r.json()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/entries/${entryId}/treatments`] });
       setShowForm(false);
       setTitle(""); setNotes(""); setResult(""); setType("medication");
-      setSelectedPointId("");
       setDate(new Date().toISOString().slice(0, 16));
     },
   });
@@ -109,14 +100,6 @@ export function TreatmentSection({ entryId, painPoints = [] }: Props) {
               </button>
             </div>
 
-            {/* Привязка к болевой точке */}
-            {t.painPointName && (
-              <div className="ml-12 flex items-center gap-1.5 text-xs text-muted-foreground">
-                <MapPin className="w-3 h-3 flex-shrink-0" />
-                <span>{t.painPointName}</span>
-              </div>
-            )}
-
             {t.notes && <p className="text-xs text-muted-foreground pl-12">{t.notes}</p>}
             {resultInfo && (
               <div className={`ml-12 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium w-fit ${resultInfo.color}`}>
@@ -132,45 +115,6 @@ export function TreatmentSection({ entryId, painPoints = [] }: Props) {
       {showForm ? (
         <div className="bg-muted/20 rounded-2xl border border-border/60 p-4 flex flex-col gap-3">
           <p className="text-sm font-semibold">Новая запись о лечении</p>
-
-          {/* Выбор болевой точки */}
-          {painPoints.length > 0 && (
-            <div>
-              <p className="text-xs font-medium text-muted-foreground mb-2">Какую боль лечим</p>
-              <div className="flex flex-col gap-1.5">
-                <button
-                  onClick={() => setSelectedPointId("")}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm transition-colors ${
-                    selectedPointId === ""
-                      ? "bg-primary/10 border-primary/40 text-primary"
-                      : "bg-card border-border/60 text-muted-foreground"
-                  }`}
-                >
-                  <MoreHorizontal className="w-3.5 h-3.5" />
-                  Общее (не привязано)
-                </button>
-                {painPoints.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setSelectedPointId(p.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm transition-colors ${
-                      selectedPointId === p.id
-                        ? "bg-primary/10 border-primary/40 text-primary"
-                        : "bg-card border-border/60 text-muted-foreground"
-                    }`}
-                  >
-                    <span
-                      className="w-5 h-5 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                      style={{ backgroundColor: intensityColor(p.intensity) }}
-                    >
-                      {p.intensity}
-                    </span>
-                    <span className="truncate">{p.zoneName}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Type */}
           <div className="grid grid-cols-4 gap-2">
