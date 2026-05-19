@@ -1,7 +1,5 @@
-const CACHE = "pain-diary-v1";
+const CACHE = "pain-diary-v3";
 const STATIC = [
-  "./",
-  "./index.html",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
@@ -24,9 +22,34 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-  // Не кэшируем API-запросы
-  if (e.request.url.includes("/api/")) return;
+  const url = e.request.url;
+
+  // API — никогда не кэшируем
+  if (url.includes("/api/")) return;
+
+  // HTML (index.html, /) — сначала сеть, при ошибке кеш
+  if (e.request.mode === "navigate" || url.endsWith(".html") || url.endsWith("/")) {
+    e.respondWith(
+      fetch(e.request)
+        .then((res) => {
+          const clone = res.clone();
+          caches.open(CACHE).then((c) => c.put(e.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // JS/CSS/изображения — сначала кеш, при промахе сеть + кешируем
   e.respondWith(
-    caches.match(e.request).then((cached) => cached || fetch(e.request))
+    caches.match(e.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(e.request).then((res) => {
+        const clone = res.clone();
+        caches.open(CACHE).then((c) => c.put(e.request, clone));
+        return res;
+      });
+    })
   );
 });
