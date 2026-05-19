@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
 import { BodySvg } from "./BodySvg";
 import { StructurePicker } from "./StructurePicker";
+import { ZonePicker } from "./ZonePicker";
 import type { BodyView, PainPoint } from "@shared/schema";
-import { findZoneAtPoint } from "@/data/anatomy";
 
 interface BodyMapProps {
   painPoints: PainPoint[];
@@ -25,19 +25,34 @@ interface PendingPoint {
 export function BodyMap({ painPoints, onChange, readOnly = false }: BodyMapProps) {
   const [activeView, setActiveView] = useState<BodyView>("front");
   const [pendingPoint, setPendingPoint] = useState<PendingPoint | null>(null);
+  const [showZonePicker, setShowZonePicker] = useState(false);
 
+  // When user taps anywhere on the body diagram — open zone picker
   const handleBodyClick = useCallback(
-    (x: number, y: number) => {
+    (_x: number, _y: number) => {
       if (readOnly) return;
-      const zone = findZoneAtPoint(x, y, activeView);
+      setShowZonePicker(true);
+    },
+    [readOnly]
+  );
+
+  // User selected a zone from the list
+  const handleZoneSelect = useCallback(
+    (zoneId: string, zoneName: string) => {
+      setShowZonePicker(false);
+      // For side views, ZonePicker returns front zone ids (f-xxx)
+      // Map them to the correct side view prefix
+      let mappedId = zoneId;
+      if (activeView === "left")  mappedId = zoneId.replace(/^f-/, "sl-");
+      if (activeView === "right") mappedId = zoneId.replace(/^f-/, "sr-");
       setPendingPoint({
-        x, y,
+        x: 50, y: 50,
         view: activeView,
-        zoneId: zone?.id ?? `${activeView}-unknown`,
-        zoneName: zone?.name ?? getRegionName(x, y),
+        zoneId: mappedId,
+        zoneName,
       });
     },
-    [activeView, readOnly]
+    [activeView]
   );
 
   const handleStructureSave = useCallback(
@@ -80,9 +95,12 @@ export function BodyMap({ painPoints, onChange, readOnly = false }: BodyMapProps
           imgHeight="min(80vh, 600px)"
         />
         {!readOnly && (
-          <p className="absolute bottom-1 left-0 right-0 text-center text-xs text-muted-foreground/60 pointer-events-none">
-            Нажмите на место боли
-          </p>
+          <button
+            onClick={() => setShowZonePicker(true)}
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium shadow-lg active:scale-95 transition-transform"
+          >
+            + Отметить место боли
+          </button>
         )}
       </div>
 
@@ -127,6 +145,15 @@ export function BodyMap({ painPoints, onChange, readOnly = false }: BodyMapProps
         </div>
       )}
 
+      {/* Zone picker modal */}
+      {showZonePicker && (
+        <ZonePicker
+          view={activeView}
+          onSelect={handleZoneSelect}
+          onCancel={() => setShowZonePicker(false)}
+        />
+      )}
+
       {pendingPoint && (
         <StructurePicker
           pending={pendingPoint}
@@ -147,18 +174,4 @@ function intensityColor(intensity: number) {
   if (intensity <= 3) return "#22c55e";
   if (intensity <= 6) return "#f59e0b";
   return "#ef4444";
-}
-
-function getRegionName(x: number, y: number): string {
-  if (y < 20) return "Голова";
-  if (y < 35) return "Шея";
-  if (y < 55) return "Плечо / Грудная клетка";
-  if (y < 70) return "Грудная клетка / Верхняя спина";
-  if (y < 85) return "Живот / Поясница";
-  if (y < 100) return "Нижний живот / Таз";
-  if (y < 120) return "Бедро";
-  if (y < 140) return "Колено";
-  if (y < 160) return "Голень";
-  if (y < 170) return "Лодыжка";
-  return "Стопа";
 }
