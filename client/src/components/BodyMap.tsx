@@ -77,7 +77,7 @@ export function BodyMap({ painPoints, onChange, readOnly = false }: BodyMapProps
           painPoints={painPoints}
           onClickPoint={!readOnly ? handleBodyClick : undefined}
           interactive={!readOnly}
-          imgHeight="min(42vh, 360px)"
+          imgHeight="min(80vh, 600px)"
         />
         {!readOnly && (
           <p className="absolute bottom-1 left-0 right-0 text-center text-xs text-muted-foreground/60 pointer-events-none">
