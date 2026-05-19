@@ -5,6 +5,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { BodyMap } from "@/components/BodyMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateTimePicker } from "@/components/DateTimePicker";
 import type { PainPoint } from "@shared/schema";
 import { ArrowLeft, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -15,12 +16,13 @@ export default function NewEntryPage() {
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [painPoints, setPainPoints] = useState<PainPoint[]>([]);
+  const [entryDate, setEntryDate] = useState(() => new Date());
 
   const createMutation = useMutation({
     mutationFn: () =>
       apiRequest("POST", "/api/entries", {
         title: title.trim() || "Запись без названия",
-        date: new Date().toISOString(),
+        date: entryDate.toISOString(),
         notes,
         painPoints: JSON.stringify(painPoints),
       }),
@@ -51,6 +53,10 @@ export default function NewEntryPage() {
           <label className="text-sm font-medium mb-1.5 block">Название записи</label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Например: Боль в спине утром" className="rounded-xl" data-testid="entry-title" />
         </div>
+
+        {/* Дата и время записи */}
+        <DateTimePicker value={entryDate} onChange={setEntryDate} label="Дата и время" />
+
         <div>
           <label className="text-sm font-medium mb-2 block">
             Карта тела
@@ -58,11 +64,13 @@ export default function NewEntryPage() {
           </label>
           <BodyMap painPoints={painPoints} onChange={setPainPoints} />
         </div>
+
         <div>
           <label className="text-sm font-medium mb-1.5 block">Общие заметки</label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Как началась боль? С чем связываете? Что помогает?" rows={3} data-testid="entry-notes"
             className="w-full text-sm rounded-xl border border-border bg-muted/20 px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-primary/40" />
         </div>
+
         <Button className="w-full rounded-xl py-5 text-base font-semibold" onClick={() => createMutation.mutate()} disabled={createMutation.isPending} data-testid="save-entry-btn-bottom">
           {createMutation.isPending ? "Сохранение..." : "Сохранить запись"}
         </Button>
