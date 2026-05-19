@@ -70,24 +70,20 @@ export function BodyMap({ painPoints, onChange, readOnly = false }: BodyMapProps
         ))}
       </div>
 
-      {/* Body image — fixed max height so it fits on screen */}
-      <div className="flex justify-center">
-        <div
-          className="relative"
-          style={{ height: "42vh", maxHeight: 340 }}
-        >
-          <BodySvg
-            view={activeView}
-            painPoints={painPoints}
-            onClickPoint={!readOnly ? handleBodyClick : undefined}
-            interactive={!readOnly}
-          />
-          {!readOnly && (
-            <p className="absolute bottom-1 left-0 right-0 text-center text-xs text-muted-foreground/60 pointer-events-none">
-              Нажмите на место боли
-            </p>
-          )}
-        </div>
+      {/* Body image */}
+      <div className="relative">
+        <BodySvg
+          view={activeView}
+          painPoints={painPoints}
+          onClickPoint={!readOnly ? handleBodyClick : undefined}
+          interactive={!readOnly}
+          imgHeight="min(42vh, 360px)"
+        />
+        {!readOnly && (
+          <p className="absolute bottom-1 left-0 right-0 text-center text-xs text-muted-foreground/60 pointer-events-none">
+            Нажмите на место боли
+          </p>
+        )}
       </div>
 
       {/* Pain points for current view — compact chips */}
