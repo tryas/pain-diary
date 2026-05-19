@@ -16,21 +16,19 @@ export interface AnatomicalStructure {
 }
 
 // ==================== FRONT VIEW ====================
-// Image: 424×865 px. Pixel-level calibration per row.
+// Image: 424×865 px.
 //
-// Head:   y=2–19%,  x≈40–60% (skin cluster, center)
-// Neck:   y=17–25%, x≈37–62% (visible skin transition)
-// Shirt collar closes at y≈19%; arms appear at y=19% (body outline)
-// Body outline: x≈22–78% at y=28–57%
-// Arms (skin): y=32–57%, screen-LEFT x≈22–30% (patient RIGHT),
-//              screen-RIGHT x≈70–78% (patient LEFT)
-// Legs: split into TWO clusters from y=58% onwards
-//   screen-LEFT  cluster (patient RIGHT): x=28–49% at y=58%, narrows to 33–43% by y=85%
-//   screen-RIGHT cluster (patient LEFT):  x=51–72% at y=58%, narrows to 57–67% by y=85%
-// Knees: y=83–93%, left-cluster x=33–43%, right-cluster x=57–67%
-// Feet:  y=96–100%
+// Calibration anchors (verified visually with overlay):
+//   Shorts bottom (leg split start): y=510px = 59.0%
+//   Foot bottom:                     y=858px = 99.2%
+//   Total leg length:                348px   = 40.2%
+//
+// Zone Y-ranges derived from medical diagram 21134.png proportions
+// mapped onto the 59%–99% leg region.
 //
 // NOTE: patient's RIGHT side = LEFT side of screen (standard front view).
+// screen-LEFT  = patient RIGHT (pr)
+// screen-RIGHT = patient LEFT  (pl)
 
 export const frontZones: AnatomicalZone[] = [
   // ── Head & neck ──────────────────────────────────────
@@ -56,9 +54,8 @@ export const frontZones: AnatomicalZone[] = [
 
   // ── Shoulders ────────────────────────────────────────
   {
-    id: "front-shoulder-right", name: "Правое плечо", view: "front",
-    // patient RIGHT = screen LEFT
-    bbox: [19, 22, 36, 42],
+    id: "front-shoulder-right", name: "Правый плечевой сустав", view: "front",
+    bbox: [19, 22, 36, 36],
     structures: [
       { id: "deltoid-r",      name: "Дельтовидная мышца",          type: "muscle" },
       { id: "shoulder-jr",    name: "Плечевой сустав",              type: "joint"  },
@@ -67,14 +64,159 @@ export const frontZones: AnatomicalZone[] = [
     ],
   },
   {
-    id: "front-shoulder-left", name: "Левое плечо", view: "front",
-    // patient LEFT = screen RIGHT
-    bbox: [64, 22, 81, 42],
+    id: "front-shoulder-left", name: "Левый плечевой сустав", view: "front",
+    bbox: [64, 22, 81, 36],
     structures: [
       { id: "deltoid",      name: "Дельтовидная мышца",          type: "muscle" },
       { id: "shoulder-j",   name: "Плечевой сустав",              type: "joint"  },
       { id: "rotator-cuff", name: "Ротаторная манжета",           type: "tendon" },
       { id: "ac-joint",     name: "Акромиально-ключичный сустав", type: "joint"  },
+    ],
+  },
+
+  // ── Upper arms ───────────────────────────────────────
+  {
+    id: "front-upper-arm-right", name: "Правое плечо (В.треть)", view: "front",
+    bbox: [19, 35, 34, 45],
+    structures: [
+      { id: "biceps-r",  name: "Бицепс",         type: "muscle" },
+      { id: "triceps-r", name: "Трицепс",         type: "muscle" },
+      { id: "humerus-r", name: "Плечевая кость",  type: "bone"   },
+    ],
+  },
+  {
+    id: "front-upper-arm-mid-right", name: "Правое плечо (С.треть)", view: "front",
+    bbox: [19, 44, 34, 51],
+    structures: [
+      { id: "biceps-mid-r",  name: "Бицепс",        type: "muscle" },
+      { id: "humerus-mid-r", name: "Плечевая кость", type: "bone"   },
+    ],
+  },
+  {
+    id: "front-upper-arm-low-right", name: "Правое плечо (Н.треть)", view: "front",
+    bbox: [19, 50, 34, 57],
+    structures: [
+      { id: "biceps-low-r",  name: "Бицепс",        type: "muscle" },
+      { id: "humerus-low-r", name: "Плечевая кость", type: "bone"   },
+    ],
+  },
+  {
+    id: "front-upper-arm-left", name: "Левое плечо (В.треть)", view: "front",
+    bbox: [66, 35, 81, 45],
+    structures: [
+      { id: "biceps",  name: "Бицепс",        type: "muscle" },
+      { id: "triceps", name: "Трицепс",        type: "muscle" },
+      { id: "humerus", name: "Плечевая кость", type: "bone"   },
+    ],
+  },
+  {
+    id: "front-upper-arm-mid-left", name: "Левое плечо (С.треть)", view: "front",
+    bbox: [66, 44, 81, 51],
+    structures: [
+      { id: "biceps-mid",  name: "Бицепс",        type: "muscle" },
+      { id: "humerus-mid", name: "Плечевая кость", type: "bone"   },
+    ],
+  },
+  {
+    id: "front-upper-arm-low-left", name: "Левое плечо (Н.треть)", view: "front",
+    bbox: [66, 50, 81, 57],
+    structures: [
+      { id: "biceps-low",  name: "Бицепс",        type: "muscle" },
+      { id: "humerus-low", name: "Плечевая кость", type: "bone"   },
+    ],
+  },
+
+  // ── Elbows ───────────────────────────────────────────
+  {
+    id: "front-elbow-right", name: "Правый локтевой сгиб", view: "front",
+    bbox: [19, 56, 34, 63],
+    structures: [
+      { id: "elbow-j-r",     name: "Локтевой сустав",       type: "joint"  },
+      { id: "biceps-ten-r",  name: "Сухожилие бицепса",     type: "tendon" },
+      { id: "epicondyle-r",  name: "Латеральный надмыщелок", type: "bone"   },
+      { id: "ulnar-nerve-r", name: "Локтевой нерв",          type: "nerve"  },
+    ],
+  },
+  {
+    id: "front-elbow-left", name: "Левый локтевой сгиб", view: "front",
+    bbox: [66, 56, 81, 63],
+    structures: [
+      { id: "elbow-j",     name: "Локтевой сустав",       type: "joint"  },
+      { id: "biceps-ten",  name: "Сухожилие бицепса",     type: "tendon" },
+      { id: "epicondyle",  name: "Латеральный надмыщелок", type: "bone"   },
+      { id: "ulnar-nerve", name: "Локтевой нерв",          type: "nerve"  },
+    ],
+  },
+
+  // ── Forearms ─────────────────────────────────────────
+  {
+    id: "front-forearm-upper-right", name: "Правое предплечье (В.треть)", view: "front",
+    bbox: [19, 62, 34, 67],
+    structures: [
+      { id: "brachiorad-r", name: "Плечелучевая мышца",        type: "muscle" },
+      { id: "radius-r",     name: "Лучевая кость",              type: "bone"   },
+    ],
+  },
+  {
+    id: "front-forearm-mid-right", name: "Правое предплечье (С.треть)", view: "front",
+    bbox: [19, 66, 34, 71],
+    structures: [
+      { id: "flexor-c-r", name: "Лучевой сгибатель запястья", type: "muscle" },
+      { id: "ulna-r",     name: "Локтевая кость",             type: "bone"   },
+    ],
+  },
+  {
+    id: "front-forearm-lower-right", name: "Правое предплечье (Н.треть)", view: "front",
+    bbox: [19, 70, 34, 75],
+    structures: [
+      { id: "ext-dig-r", name: "Разгибатель пальцев",         type: "muscle" },
+      { id: "radius-l-r", name: "Лучевая кость (нижняя)",     type: "bone"   },
+    ],
+  },
+  {
+    id: "front-forearm-upper-left", name: "Левое предплечье (В.треть)", view: "front",
+    bbox: [66, 62, 81, 67],
+    structures: [
+      { id: "brachiorad", name: "Плечелучевая мышца",        type: "muscle" },
+      { id: "radius",     name: "Лучевая кость",              type: "bone"   },
+    ],
+  },
+  {
+    id: "front-forearm-mid-left", name: "Левое предплечье (С.треть)", view: "front",
+    bbox: [66, 66, 81, 71],
+    structures: [
+      { id: "flexor-c", name: "Лучевой сгибатель запястья", type: "muscle" },
+      { id: "ulna",     name: "Локтевая кость",             type: "bone"   },
+    ],
+  },
+  {
+    id: "front-forearm-lower-left", name: "Левое предплечье (Н.треть)", view: "front",
+    bbox: [66, 70, 81, 75],
+    structures: [
+      { id: "ext-dig",  name: "Разгибатель пальцев",         type: "muscle" },
+      { id: "radius-l", name: "Лучевая кость (нижняя)",      type: "bone"   },
+    ],
+  },
+
+  // ── Wrists / hands ───────────────────────────────────
+  {
+    id: "front-wrist-hand-right", name: "Правое запястье / кисть", view: "front",
+    bbox: [18, 74, 34, 87],
+    structures: [
+      { id: "wrist-j-r",  name: "Лучезапястный сустав", type: "joint"  },
+      { id: "carpal-r",   name: "Карпальный канал",      type: "bone"   },
+      { id: "median-n-r", name: "Срединный нерв",        type: "nerve"  },
+      { id: "flex-ten-r", name: "Сухожилия сгибателей",  type: "tendon" },
+    ],
+  },
+  {
+    id: "front-wrist-hand-left", name: "Левое запястье / кисть", view: "front",
+    bbox: [66, 74, 82, 87],
+    structures: [
+      { id: "wrist-j",  name: "Лучезапястный сустав", type: "joint"  },
+      { id: "carpal",   name: "Карпальный канал",      type: "bone"   },
+      { id: "median-n", name: "Срединный нерв",        type: "nerve"  },
+      { id: "flex-ten", name: "Сухожилия сгибателей",  type: "tendon" },
     ],
   },
 
@@ -105,7 +247,7 @@ export const frontZones: AnatomicalZone[] = [
   },
   {
     id: "front-abdomen-lower", name: "Нижний живот", view: "front",
-    bbox: [27, 52, 73, 58],
+    bbox: [27, 52, 73, 59],
     structures: [
       { id: "rectus-lower",    name: "Прямая мышца живота (низ)", type: "muscle" },
       { id: "small-intestine", name: "Тонкий кишечник",           type: "organ"  },
@@ -115,96 +257,8 @@ export const frontZones: AnatomicalZone[] = [
     ],
   },
 
-  // ── Upper arms (skin clusters) ───────────────────────
-  {
-    id: "front-upper-arm-right", name: "Правое плечо (рука)", view: "front",
-    // skin cluster at screen LEFT: x=19–34%
-    bbox: [19, 40, 34, 57],
-    structures: [
-      { id: "biceps-r",  name: "Бицепс",         type: "muscle" },
-      { id: "triceps-r", name: "Трицепс",         type: "muscle" },
-      { id: "humerus-r", name: "Плечевая кость",  type: "bone"   },
-    ],
-  },
-  {
-    id: "front-upper-arm-left", name: "Левое плечо (рука)", view: "front",
-    // skin cluster at screen RIGHT: x=66–81%
-    bbox: [66, 40, 81, 57],
-    structures: [
-      { id: "biceps",  name: "Бицепс",        type: "muscle" },
-      { id: "triceps", name: "Трицепс",        type: "muscle" },
-      { id: "humerus", name: "Плечевая кость", type: "bone"   },
-    ],
-  },
-
-  // ── Elbows ───────────────────────────────────────────
-  {
-    id: "front-elbow-right", name: "Правый локоть", view: "front",
-    bbox: [19, 56, 34, 63],
-    structures: [
-      { id: "elbow-j-r",       name: "Локтевой сустав",       type: "joint"  },
-      { id: "biceps-ten-r",    name: "Сухожилие бицепса",     type: "tendon" },
-      { id: "epicondyle-r",    name: "Латеральный надмыщелок", type: "bone"   },
-      { id: "ulnar-nerve-r",   name: "Локтевой нерв",          type: "nerve"  },
-    ],
-  },
-  {
-    id: "front-elbow-left", name: "Левый локоть", view: "front",
-    bbox: [66, 56, 81, 63],
-    structures: [
-      { id: "elbow-j",     name: "Локтевой сустав",       type: "joint"  },
-      { id: "biceps-ten",  name: "Сухожилие бицепса",     type: "tendon" },
-      { id: "epicondyle",  name: "Латеральный надмыщелок", type: "bone"   },
-      { id: "ulnar-nerve", name: "Локтевой нерв",          type: "nerve"  },
-    ],
-  },
-
-  // ── Forearms ─────────────────────────────────────────
-  {
-    id: "front-forearm-right", name: "Правое предплечье", view: "front",
-    bbox: [19, 62, 34, 75],
-    structures: [
-      { id: "brachiorad-r", name: "Плечелучевая мышца",        type: "muscle" },
-      { id: "flexor-c-r",   name: "Лучевой сгибатель запястья", type: "muscle" },
-      { id: "radius-r",     name: "Лучевая кость",              type: "bone"   },
-      { id: "ulna-r",       name: "Локтевая кость",             type: "bone"   },
-    ],
-  },
-  {
-    id: "front-forearm-left", name: "Левое предплечье", view: "front",
-    bbox: [66, 62, 81, 75],
-    structures: [
-      { id: "brachiorad", name: "Плечелучевая мышца",        type: "muscle" },
-      { id: "flexor-c",   name: "Лучевой сгибатель запястья", type: "muscle" },
-      { id: "radius",     name: "Лучевая кость",              type: "bone"   },
-      { id: "ulna",       name: "Локтевая кость",             type: "bone"   },
-    ],
-  },
-
-  // ── Wrists / hands ───────────────────────────────────
-  {
-    id: "front-wrist-hand-right", name: "Правое запястье / кисть", view: "front",
-    bbox: [18, 74, 34, 87],
-    structures: [
-      { id: "wrist-j-r",    name: "Лучезапястный сустав",  type: "joint"  },
-      { id: "carpal-r",     name: "Карпальный канал",       type: "bone"   },
-      { id: "median-n-r",   name: "Срединный нерв",         type: "nerve"  },
-      { id: "flex-ten-r",   name: "Сухожилия сгибателей",   type: "tendon" },
-    ],
-  },
-  {
-    id: "front-wrist-hand-left", name: "Левое запястье / кисть", view: "front",
-    bbox: [66, 74, 82, 87],
-    structures: [
-      { id: "wrist-j",   name: "Лучезапястный сустав", type: "joint"  },
-      { id: "carpal",    name: "Карпальный канал",      type: "bone"   },
-      { id: "median-n",  name: "Срединный нерв",        type: "nerve"  },
-      { id: "flex-ten",  name: "Сухожилия сгибателей",  type: "tendon" },
-    ],
-  },
-
   // ── Groin / pelvis ────────────────────────────────────
-  // Legs still merged at y=54–60%; split starts at y≈59%
+  // Legs split at y≈59%; groin spans both sides
   {
     id: "front-groin", name: "Таз / Пах", view: "front",
     bbox: [27, 53, 73, 61],
@@ -215,118 +269,213 @@ export const frontZones: AnatomicalZone[] = [
     ],
   },
 
-  // ── Hips (y=62–75%) ──────────────────────────────────
-  // Leg clusters: screen-LEFT x=31–48%, screen-RIGHT x=52–69%
-  {
-    id: "front-hip-right", name: "Правый тазобедренный сустав", view: "front",
-    bbox: [29, 59, 50, 79],
-    structures: [
-      { id: "hip-j-r",     name: "Тазобедренный сустав",        type: "joint"    },
-      { id: "iliopsoas-r", name: "Подвздошно-поясничная мышца", type: "muscle"   },
-      { id: "groin-lig-r", name: "Паховые связки",               type: "ligament" },
-    ],
-  },
-  {
-    id: "front-hip-left", name: "Левый тазобедренный сустав", view: "front",
-    bbox: [50, 59, 71, 79],
-    structures: [
-      { id: "hip-j",     name: "Тазобедренный сустав",        type: "joint"    },
-      { id: "iliopsoas", name: "Подвздошно-поясничная мышца", type: "muscle"   },
-      { id: "groin-lig", name: "Паховые связки",               type: "ligament" },
-    ],
-  },
+  // ══════════════════════════════════════════════════════
+  // LEG ZONES — calibrated from photo anchor points:
+  //   Legs start: y=59% (bottom of shorts)
+  //   Foot bottom: y=99%
+  //   Total leg height: 40%
+  //
+  // Proportions from medical diagram 21134.png:
+  //   В.треть бедра:   0–15% of leg = y 59–65%
+  //   С.треть бедра:  15–30% of leg = y 65–71%
+  //   Н.треть бедра:  30–42% of leg = y 71–76%
+  //   Надколенник:    41–47% of leg = y 75–78%
+  //   Коленный сустав:46–55% of leg = y 77–81%
+  //   В.треть голени: 54–65% of leg = y 81–85%
+  //   С.треть голени: 64–76% of leg = y 85–89%
+  //   Н.треть голени: 75–87% of leg = y 89–94%
+  //   Стопа:          86–100% of leg = y 93–99%
+  //
+  // X ranges (patient RIGHT = screen LEFT, patient LEFT = screen RIGHT):
+  //   PR (screen-left):  x 30–48%
+  //   PL (screen-right): x 52–70%
+  // ══════════════════════════════════════════════════════
 
-  // ── Thighs (y=73–84%) ────────────────────────────────
-  // screen-LEFT x=32–45%, screen-RIGHT x=55–68%
+  // ── Верхняя треть бедра (y 59–65%) ───────────────────
   {
-    id: "front-thigh-right", name: "Правое бедро", view: "front",
-    bbox: [30, 68, 47, 80],
+    id: "front-thigh-upper-right", name: "Правое бедро (В.треть)", view: "front",
+    bbox: [30, 59, 48, 65],
     structures: [
-      { id: "quadriceps-r",  name: "Четырёхглавая мышца бедра", type: "muscle" },
+      { id: "quad-upper-r",  name: "Четырёхглавая мышца бедра", type: "muscle" },
       { id: "rectus-fem-r",  name: "Прямая мышца бедра",        type: "muscle" },
-      { id: "vastus-med-r",  name: "Медиальная широкая мышца",  type: "muscle" },
-      { id: "femur-r",       name: "Бедренная кость",            type: "bone"   },
+      { id: "femur-upper-r", name: "Бедренная кость",            type: "bone"   },
+      { id: "femoral-art-r", name: "Бедренная артерия",          type: "organ"  },
     ],
   },
   {
-    id: "front-thigh-left", name: "Левое бедро", view: "front",
-    bbox: [52, 68, 68, 80],
+    id: "front-thigh-upper-left", name: "Левое бедро (В.треть)", view: "front",
+    bbox: [52, 59, 70, 65],
     structures: [
-      { id: "quadriceps",  name: "Четырёхглавая мышца бедра", type: "muscle" },
+      { id: "quad-upper",  name: "Четырёхглавая мышца бедра", type: "muscle" },
       { id: "rectus-fem",  name: "Прямая мышца бедра",        type: "muscle" },
-      { id: "vastus-lat",  name: "Латеральная широкая мышца", type: "muscle" },
+      { id: "femur-upper", name: "Бедренная кость",            type: "bone"   },
+      { id: "femoral-art", name: "Бедренная артерия",          type: "organ"  },
+    ],
+  },
+
+  // ── Средняя треть бедра (y 65–71%) ───────────────────
+  {
+    id: "front-thigh-mid-right", name: "Правое бедро (С.треть)", view: "front",
+    bbox: [30, 64, 47, 71],
+    structures: [
+      { id: "quad-mid-r",     name: "Четырёхглавая мышца бедра", type: "muscle" },
+      { id: "vastus-lat-r",   name: "Латеральная широкая мышца", type: "muscle" },
+      { id: "vastus-med-r",   name: "Медиальная широкая мышца",  type: "muscle" },
+      { id: "femur-mid-r",    name: "Бедренная кость",            type: "bone"   },
+    ],
+  },
+  {
+    id: "front-thigh-mid-left", name: "Левое бедро (С.треть)", view: "front",
+    bbox: [53, 64, 70, 71],
+    structures: [
+      { id: "quad-mid",   name: "Четырёхглавая мышца бедра", type: "muscle" },
+      { id: "vastus-lat", name: "Латеральная широкая мышца", type: "muscle" },
+      { id: "vastus-med", name: "Медиальная широкая мышца",  type: "muscle" },
+      { id: "femur-mid",  name: "Бедренная кость",            type: "bone"   },
+    ],
+  },
+
+  // ── Нижняя треть бедра (y 71–76%) ────────────────────
+  {
+    id: "front-thigh-lower-right", name: "Правое бедро (Н.треть)", view: "front",
+    bbox: [31, 70, 47, 76],
+    structures: [
+      { id: "quad-lower-r",  name: "Четырёхглавая мышца бедра", type: "muscle" },
+      { id: "sartorius-r",   name: "Портняжная мышца",           type: "muscle" },
+      { id: "femur-lower-r", name: "Бедренная кость",            type: "bone"   },
+    ],
+  },
+  {
+    id: "front-thigh-lower-left", name: "Левое бедро (Н.треть)", view: "front",
+    bbox: [53, 70, 69, 76],
+    structures: [
+      { id: "quad-lower",  name: "Четырёхглавая мышца бедра", type: "muscle" },
       { id: "sartorius",   name: "Портняжная мышца",           type: "muscle" },
-      { id: "femur",       name: "Бедренная кость",            type: "bone"   },
+      { id: "femur-lower", name: "Бедренная кость",            type: "bone"   },
     ],
   },
 
-  // ── Knees (y=83–93%) ─────────────────────────────────
-  // screen-LEFT x=33–43%, screen-RIGHT x=57–67%
+  // ── Надколенная чашечка (y 75–79%) ───────────────────
   {
-    id: "front-knee-right", name: "Правое колено", view: "front",
-    bbox: [31, 78, 46, 92],
+    id: "front-patella-right", name: "Правый надколенник", view: "front",
+    bbox: [32, 74, 46, 79],
     structures: [
-      { id: "knee-j-r",       name: "Коленный сустав",               type: "joint"    },
-      { id: "patella-r",      name: "Надколенник",                    type: "bone"     },
-      { id: "patellar-ten-r", name: "Связка надколенника",           type: "tendon"   },
-      { id: "acl-r",          name: "Передняя крестообразная связка", type: "ligament" },
-      { id: "meniscus-r",     name: "Мениск",                         type: "joint"    },
+      { id: "patella-r",      name: "Надколенник",           type: "bone"   },
+      { id: "patellar-ten-r", name: "Связка надколенника",   type: "tendon" },
+      { id: "quad-ten-r",     name: "Сухожилие квадрицепса", type: "tendon" },
     ],
   },
   {
-    id: "front-knee-left", name: "Левое колено", view: "front",
-    bbox: [53, 78, 68, 92],
+    id: "front-patella-left", name: "Левый надколенник", view: "front",
+    bbox: [54, 74, 68, 79],
     structures: [
-      { id: "knee-j",       name: "Коленный сустав",               type: "joint"    },
-      { id: "patella",      name: "Надколенник",                    type: "bone"     },
-      { id: "patellar-ten", name: "Связка надколенника",           type: "tendon"   },
-      { id: "acl",          name: "Передняя крестообразная связка", type: "ligament" },
-      { id: "mcl",          name: "Медиальная коллатеральная связка", type: "ligament" },
-      { id: "meniscus",     name: "Мениск",                         type: "joint"    },
+      { id: "patella",      name: "Надколенник",           type: "bone"   },
+      { id: "patellar-ten", name: "Связка надколенника",   type: "tendon" },
+      { id: "quad-ten",     name: "Сухожилие квадрицепса", type: "tendon" },
     ],
   },
 
-  // ── Shins (y=92–97%) ─────────────────────────────────
-  // screen-LEFT x=33–43%, screen-RIGHT x=57–66%
+  // ── Область коленного сустава (y 78–82%) ─────────────
   {
-    id: "front-shin-right", name: "Правая голень", view: "front",
-    bbox: [32, 90, 45, 97],
+    id: "front-knee-right", name: "Правый коленный сустав", view: "front",
+    bbox: [31, 77, 46, 83],
     structures: [
-      { id: "tibialis-r", name: "Передняя большеберцовая мышца", type: "muscle" },
-      { id: "tibia-r",    name: "Большеберцовая кость",          type: "bone"   },
-      { id: "peroneus-r", name: "Малоберцовые мышцы",            type: "muscle" },
+      { id: "knee-j-r",   name: "Коленный сустав",               type: "joint"    },
+      { id: "acl-r",      name: "Передняя крестообразная связка", type: "ligament" },
+      { id: "mcl-r",      name: "Медиальная коллатеральная связка", type: "ligament" },
+      { id: "meniscus-r", name: "Мениск",                         type: "joint"    },
     ],
   },
   {
-    id: "front-shin-left", name: "Левая голень", view: "front",
-    bbox: [54, 90, 68, 97],
+    id: "front-knee-left", name: "Левый коленный сустав", view: "front",
+    bbox: [54, 77, 69, 83],
     structures: [
-      { id: "tibialis", name: "Передняя большеберцовая мышца", type: "muscle" },
-      { id: "tibia",    name: "Большеберцовая кость",          type: "bone"   },
-      { id: "peroneus", name: "Малоберцовые мышцы",            type: "muscle" },
+      { id: "knee-j",   name: "Коленный сустав",               type: "joint"    },
+      { id: "acl",      name: "Передняя крестообразная связка", type: "ligament" },
+      { id: "mcl",      name: "Медиальная коллатеральная связка", type: "ligament" },
+      { id: "meniscus", name: "Мениск",                         type: "joint"    },
     ],
   },
 
-  // ── Feet (y=96–100%) ─────────────────────────────────
-  // screen-LEFT x=30–43%, screen-RIGHT x=57–70%
+  // ── Верхняя треть голени (y 82–86%) ──────────────────
   {
-    id: "front-ankle-foot-right", name: "Правая стопа / лодыжка", view: "front",
-    bbox: [29, 95, 45, 100],
+    id: "front-shin-upper-right", name: "Правая голень (В.треть)", view: "front",
+    bbox: [32, 82, 45, 87],
+    structures: [
+      { id: "tibialis-r",  name: "Передняя большеберцовая мышца", type: "muscle" },
+      { id: "tibia-r",     name: "Большеберцовая кость",          type: "bone"   },
+      { id: "peroneus-r",  name: "Малоберцовые мышцы",            type: "muscle" },
+    ],
+  },
+  {
+    id: "front-shin-upper-left", name: "Левая голень (В.треть)", view: "front",
+    bbox: [55, 82, 68, 87],
+    structures: [
+      { id: "tibialis",  name: "Передняя большеберцовая мышца", type: "muscle" },
+      { id: "tibia",     name: "Большеберцовая кость",          type: "bone"   },
+      { id: "peroneus",  name: "Малоберцовые мышцы",            type: "muscle" },
+    ],
+  },
+
+  // ── Средняя треть голени (y 86–90%) ──────────────────
+  {
+    id: "front-shin-mid-right", name: "Правая голень (С.треть)", view: "front",
+    bbox: [33, 86, 44, 91],
+    structures: [
+      { id: "tibialis-mid-r", name: "Передняя большеберцовая мышца", type: "muscle" },
+      { id: "tibia-mid-r",    name: "Большеберцовая кость",          type: "bone"   },
+    ],
+  },
+  {
+    id: "front-shin-mid-left", name: "Левая голень (С.треть)", view: "front",
+    bbox: [56, 86, 67, 91],
+    structures: [
+      { id: "tibialis-mid", name: "Передняя большеберцовая мышца", type: "muscle" },
+      { id: "tibia-mid",    name: "Большеберцовая кость",          type: "bone"   },
+    ],
+  },
+
+  // ── Нижняя треть голени (y 90–94%) ───────────────────
+  {
+    id: "front-shin-lower-right", name: "Правая голень (Н.треть)", view: "front",
+    bbox: [33, 90, 44, 95],
+    structures: [
+      { id: "tibialis-low-r", name: "Передняя большеберцовая мышца", type: "muscle" },
+      { id: "tibia-low-r",    name: "Большеберцовая кость",          type: "bone"   },
+      { id: "ankle-ten-r",    name: "Сухожилие разгибателей",        type: "tendon" },
+    ],
+  },
+  {
+    id: "front-shin-lower-left", name: "Левая голень (Н.треть)", view: "front",
+    bbox: [56, 90, 67, 95],
+    structures: [
+      { id: "tibialis-low", name: "Передняя большеберцовая мышца", type: "muscle" },
+      { id: "tibia-low",    name: "Большеберцовая кость",          type: "bone"   },
+      { id: "ankle-ten",    name: "Сухожилие разгибателей",        type: "tendon" },
+    ],
+  },
+
+  // ── Стопа / лодыжка (y 93–99%) ───────────────────────
+  {
+    id: "front-ankle-foot-right", name: "Правая стопа", view: "front",
+    bbox: [30, 93, 46, 99],
     structures: [
       { id: "ankle-j-r",   name: "Голеностопный сустав", type: "joint"  },
       { id: "achilles-r",  name: "Ахиллово сухожилие",   type: "tendon" },
       { id: "plantar-r",   name: "Подошвенная фасция",    type: "tendon" },
       { id: "calcaneus-r", name: "Пяточная кость",        type: "bone"   },
+      { id: "talus-r",     name: "Таранная кость",        type: "bone"   },
     ],
   },
   {
-    id: "front-ankle-foot-left", name: "Левая стопа / лодыжка", view: "front",
-    bbox: [55, 95, 70, 100],
+    id: "front-ankle-foot-left", name: "Левая стопа", view: "front",
+    bbox: [54, 93, 70, 99],
     structures: [
       { id: "ankle-j",   name: "Голеностопный сустав", type: "joint"  },
       { id: "achilles",  name: "Ахиллово сухожилие",   type: "tendon" },
       { id: "plantar",   name: "Подошвенная фасция",    type: "tendon" },
       { id: "calcaneus", name: "Пяточная кость",        type: "bone"   },
+      { id: "talus",     name: "Таранная кость",        type: "bone"   },
     ],
   },
 ];
@@ -637,17 +786,28 @@ export function getZonesForView(view: BodyView): AnatomicalZone[] {
 }
 
 // Find zone where point (x%, y%) falls within bbox.
-// Iterates in reverse so smaller/specific zones win over larger ones.
+//
+// Strategy: sort matching zones by bbox area (ascending) so the SMALLEST
+// (most specific) bbox wins when zones overlap. This handles cases like
+// knee overlapping thigh — knee bbox is smaller so it wins.
 // Falls back to nearest-center zone if no exact hit.
 export function findZoneAtPoint(x: number, y: number, view: BodyView): AnatomicalZone | null {
   const zones = getZonesForView(view);
   if (zones.length === 0) return null;
 
-  for (let i = zones.length - 1; i >= 0; i--) {
-    const [x1, y1, x2, y2] = zones[i].bbox;
+  // Collect all zones whose bbox contains the point
+  const hits: Array<{ zone: AnatomicalZone; area: number }> = [];
+  for (const zone of zones) {
+    const [x1, y1, x2, y2] = zone.bbox;
     if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
-      return zones[i];
+      hits.push({ zone, area: (x2 - x1) * (y2 - y1) });
     }
+  }
+
+  if (hits.length > 0) {
+    // Return the zone with the smallest area (most specific)
+    hits.sort((a, b) => a.area - b.area);
+    return hits[0].zone;
   }
 
   // Nearest-center fallback
