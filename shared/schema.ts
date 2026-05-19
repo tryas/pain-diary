@@ -24,8 +24,6 @@ export const treatments = sqliteTable("treatments", {
   title: text("title").notNull(),
   notes: text("notes").default(""),
   result: text("result").default(""), // эффект: "helped"|"no_effect"|"worse"
-  painPointId: text("pain_point_id").default(""),
-  painPointName: text("pain_point_name").default(""),
 });
 
 export const insertTreatmentSchema = createInsertSchema(treatments).omit({ id: true });
