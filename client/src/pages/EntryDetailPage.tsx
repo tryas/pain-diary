@@ -6,6 +6,7 @@ import { BodyMap } from "@/components/BodyMap";
 import { TreatmentSection } from "@/components/TreatmentSection";
 import { AttachmentUpload } from "@/components/AttachmentUpload";
 import { DynamicsSection } from "@/components/DynamicsSection";
+import { DateTimePicker } from "@/components/DateTimePicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -45,6 +46,7 @@ export default function EntryDetailPage() {
   const [editTitle, setEditTitle] = useState("");
   const [editNotes, setEditNotes] = useState("");
   const [editPoints, setEditPoints] = useState<PainPoint[]>([]);
+  const [editDate, setEditDate] = useState(() => new Date());
   const [activeTab, setActiveTab] = useState<Tab>("pain");
 
   const { data: entry, isLoading } = useQuery<PainEntry>({
@@ -64,6 +66,7 @@ export default function EntryDetailPage() {
   const updateMutation = useMutation({
     mutationFn: () => apiRequest("PATCH", `/api/entries/${id}`, {
       title: editTitle.trim() || "Запись без названия",
+      date: editDate.toISOString(),
       notes: editNotes,
       painPoints: JSON.stringify(editPoints),
     }),
@@ -80,6 +83,7 @@ export default function EntryDetailPage() {
     setEditTitle(entry.title);
     setEditNotes(entry.notes ?? "");
     setEditPoints(getPainPoints(entry));
+    try { setEditDate(new Date(entry.date)); } catch { setEditDate(new Date()); }
     setEditing(true);
   };
 
@@ -158,6 +162,7 @@ export default function EntryDetailPage() {
               <label className="text-sm font-medium mb-1.5 block">Название</label>
               <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="rounded-xl" />
             </div>
+            <DateTimePicker value={editDate} onChange={setEditDate} label="Дата и время" />
             <div>
               <label className="text-sm font-medium mb-2 block">Карта тела</label>
               <BodyMap painPoints={editPoints} onChange={setEditPoints} />
