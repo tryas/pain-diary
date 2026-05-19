@@ -4,6 +4,7 @@ import { queryClient } from "@/lib/queryClient";
 import { Plus, Trash2, Pill, Dumbbell, Stethoscope, MoreHorizontal, ThumbsUp, Minus, ThumbsDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateTimePicker } from "./DateTimePicker";
 import type { Treatment } from "@shared/schema";
 import { format, parseISO } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -18,7 +19,7 @@ const TREATMENT_TYPES = [
 const RESULT_OPTIONS = [
   { value: "helped", label: "Помогло", icon: ThumbsUp, color: "text-green-500 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800" },
   { value: "no_effect", label: "Без эффекта", icon: Minus, color: "text-amber-500 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800" },
-  { value: "worse", label: "Стало хуже", icon: ThumbsDown, color: "text-red-500 bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800" },
+  { value: "worse", label: "Хуже", icon: ThumbsDown, color: "text-red-500 bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800" },
 ] as const;
 
 const TYPE_ICONS: Record<string, React.ElementType> = {
@@ -38,7 +39,7 @@ export function TreatmentSection({ entryId }: Props) {
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [result, setResult] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 16));
+  const [date, setDate] = useState(() => new Date());
 
   const { data: treatments = [] } = useQuery<Treatment[]>({
     queryKey: [`/api/entries/${entryId}/treatments`],
@@ -55,14 +56,14 @@ export function TreatmentSection({ entryId }: Props) {
           title: title.trim() || TYPE_LABELS[type],
           notes,
           result,
-          date: new Date(date).toISOString(),
+          date: date.toISOString(),
         }),
       }).then((r) => r.json()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/entries/${entryId}/treatments`] });
       setShowForm(false);
       setTitle(""); setNotes(""); setResult(""); setType("medication");
-      setDate(new Date().toISOString().slice(0, 16));
+      setDate(new Date());
     },
   });
 
@@ -75,7 +76,6 @@ export function TreatmentSection({ entryId }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Treatments list */}
       {treatments.map((t) => {
         const Icon = TYPE_ICONS[t.type] ?? MoreHorizontal;
         const resultInfo = getResultInfo(t.result ?? "");
@@ -99,7 +99,6 @@ export function TreatmentSection({ entryId }: Props) {
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
-
             {t.notes && <p className="text-xs text-muted-foreground pl-12">{t.notes}</p>}
             {resultInfo && (
               <div className={`ml-12 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium w-fit ${resultInfo.color}`}>
@@ -111,7 +110,6 @@ export function TreatmentSection({ entryId }: Props) {
         );
       })}
 
-      {/* Add form */}
       {showForm ? (
         <div className="bg-muted/20 rounded-2xl border border-border/60 p-4 flex flex-col gap-3">
           <p className="text-sm font-semibold">Новая запись о лечении</p>
@@ -132,30 +130,24 @@ export function TreatmentSection({ entryId }: Props) {
             ))}
           </div>
 
-          {/* Title + date */}
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={`Название (${TYPE_LABELS[type].toLowerCase()})`}
             className="rounded-xl text-sm"
           />
-          <input
-            type="datetime-local"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full text-sm rounded-xl border border-border bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40"
-          />
 
-          {/* Notes */}
+          {/* DateTimePicker */}
+          <DateTimePicker value={date} onChange={setDate} label="Дата и время" />
+
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Дозировка, описание процедуры, примечания..."
+            placeholder="Дозировка, описание процедуры..."
             rows={2}
             className="w-full text-sm rounded-xl border border-border bg-muted/20 px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
 
-          {/* Result */}
           <div>
             <p className="text-xs font-medium text-muted-foreground mb-2">Эффект</p>
             <div className="flex gap-2">
