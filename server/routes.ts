@@ -5,7 +5,12 @@ import multer from "multer";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { storage } from "./storage";
-import { insertPainEntrySchema, insertTreatmentSchema, attachments as attachmentsTable } from "@shared/schema";
+import {
+  insertPainEntrySchema,
+  insertTreatmentSchema,
+  insertPainSnapshotSchema,
+  attachments as attachmentsTable,
+} from "@shared/schema";
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -45,6 +50,28 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     res.json({ success: true });
   });
 
+  // ── Snapshots (динамика боли) ─────────────────────────────────────────────
+  app.get("/api/entries/:id/snapshots", (req, res) => {
+    const entryId = parseInt(req.params.id);
+    if (isNaN(entryId)) return res.status(400).json({ message: "Invalid id" });
+    res.json(storage.getSnapshots(entryId));
+  });
+
+  app.post("/api/entries/:id/snapshots", (req, res) => {
+    const entryId = parseInt(req.params.id);
+    if (isNaN(entryId)) return res.status(400).json({ message: "Invalid id" });
+    const result = insertPainSnapshotSchema.safeParse({ ...req.body, entryId });
+    if (!result.success) return res.status(400).json({ message: "Validation error", errors: result.error.errors });
+    res.status(201).json(storage.createSnapshot(result.data));
+  });
+
+  app.delete("/api/snapshots/:id", (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: "Invalid id" });
+    if (!storage.deleteSnapshot(id)) return res.status(404).json({ message: "Not found" });
+    res.json({ success: true });
+  });
+
   // ── Treatments ───────────────────────────────────────────────────────────
   app.get("/api/entries/:id/treatments", (req, res) => {
     const entryId = parseInt(req.params.id);
@@ -79,7 +106,6 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
   app.get("/api/entries/:id/attachments", (req, res) => {
     const entryId = parseInt(req.params.id);
     if (isNaN(entryId)) return res.status(400).json({ message: "Invalid id" });
-    // Return without base64 data for list (just metadata)
     const list = storage.getAttachments(entryId).map(({ data: _data, ...meta }) => meta);
     res.json(list);
   });
