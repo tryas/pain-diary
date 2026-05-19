@@ -60,7 +60,7 @@ export default function NewEntryPage() {
         <div>
           <label className="text-sm font-medium mb-2 block">
             Карта тела
-            <span className="text-xs font-normal text-muted-foreground ml-1.5">Нажмите на область боли</span>
+            <span className="text-xs font-normal text-muted-foreground ml-1.5">Выберите место боли из списка</span>
           </label>
           <BodyMap painPoints={painPoints} onChange={setPainPoints} />
         </div>
