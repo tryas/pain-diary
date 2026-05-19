@@ -71,11 +71,18 @@ export function StructurePicker({ pending, onSave, onCancel }: StructurePickerPr
   };
 
   const handleSave = () => {
+    // Use polygon centroid as dot position (so the marker appears on the correct zone)
+    let dotX = pending.x;
+    let dotY = pending.y;
+    if (zone && zone.polygon.length > 0) {
+      dotX = zone.polygon.reduce((s, p) => s + p[0], 0) / zone.polygon.length;
+      dotY = zone.polygon.reduce((s, p) => s + p[1], 0) / zone.polygon.length;
+    }
     const point: PainPoint = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       view: pending.view,
-      x: pending.x,
-      y: pending.y,
+      x: dotX,
+      y: dotY,
       intensity,
       painType,
       zoneId: pending.zoneId,
