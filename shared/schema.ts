@@ -15,29 +15,43 @@ export const insertPainEntrySchema = createInsertSchema(painEntries).omit({ id: 
 export type InsertPainEntry = z.infer<typeof insertPainEntrySchema>;
 export type PainEntry = typeof painEntries.$inferSelect;
 
-// Treatments table — процедуры/лечение, привязанные к записи боли
-export const treatments = sqliteTable("treatments", {
+// Pain snapshots — история изменений боли (динамика)
+export const painSnapshots = sqliteTable("pain_snapshots", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   entryId: integer("entry_id").notNull(),
   date: text("date").notNull(), // ISO string
-  type: text("type").notNull(), // "medication"|"procedure"|"exercise"|"other"
+  intensity: integer("intensity").notNull(), // 1-10
+  painType: text("pain_type").notNull(), // "sharp"|"aching"|"burning"|"throbbing"|"pressing"|"stabbing"
+  note: text("note").default(""),
+});
+
+export const insertPainSnapshotSchema = createInsertSchema(painSnapshots).omit({ id: true });
+export type InsertPainSnapshot = z.infer<typeof insertPainSnapshotSchema>;
+export type PainSnapshot = typeof painSnapshots.$inferSelect;
+
+// Treatments table
+export const treatments = sqliteTable("treatments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  entryId: integer("entry_id").notNull(),
+  date: text("date").notNull(),
+  type: text("type").notNull(),
   title: text("title").notNull(),
   notes: text("notes").default(""),
-  result: text("result").default(""), // эффект: "helped"|"no_effect"|"worse"
+  result: text("result").default(""),
 });
 
 export const insertTreatmentSchema = createInsertSchema(treatments).omit({ id: true });
 export type InsertTreatment = z.infer<typeof insertTreatmentSchema>;
 export type Treatment = typeof treatments.$inferSelect;
 
-// Attachments table — фото и документы, привязанные к записи боли
+// Attachments table
 export const attachments = sqliteTable("attachments", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   entryId: integer("entry_id").notNull(),
   filename: text("filename").notNull(),
   mimeType: text("mime_type").notNull(),
   size: integer("size").notNull(),
-  data: text("data").notNull(), // base64 data URL
+  data: text("data").notNull(),
   createdAt: text("created_at").notNull(),
 });
 
@@ -45,7 +59,7 @@ export const insertAttachmentSchema = createInsertSchema(attachments).omit({ id:
 export type InsertAttachment = z.infer<typeof insertAttachmentSchema>;
 export type Attachment = typeof attachments.$inferSelect;
 
-// TypeScript types for pain points (stored as JSON in painPoints column)
+// TypeScript types
 export type BodyView = "front" | "back" | "left" | "right";
 export type PainIntensity = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export type PainType = "sharp" | "aching" | "burning" | "throbbing" | "pressing" | "stabbing";
