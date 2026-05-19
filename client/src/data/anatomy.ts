@@ -284,52 +284,52 @@ export const frontZones: AnatomicalZone[] = [
 
   // THIGH right (screen-left)
   { id: "f-thigh-upper-r", name: "В.треть бедра (прав.)", view: "front",
-    polygon: pf([[158,408],[268,408],[268,450],[158,450]]),
+    polygon: pf([[158,385],[268,385],[268,428],[158,428]]),
     structures: [
       { id: "quad-upper-r", name: "Четырёхглавая мышца бедра", type: "muscle" },
       { id: "femur-upper-r", name: "Бедренная кость", type: "bone" },
       { id: "femoral-a-r", name: "Бедренная артерия", type: "organ" },
     ]},
   { id: "f-thigh-mid-r", name: "С.треть бедра (прав.)", view: "front",
-    polygon: pf([[160,450],[266,450],[266,492],[160,492]]),
+    polygon: pf([[160,428],[266,428],[266,468],[160,468]]),
     structures: [
       { id: "quad-mid-r", name: "Четырёхглавая мышца бедра", type: "muscle" },
       { id: "vastus-lat-r", name: "Латеральная широкая мышца", type: "muscle" },
     ]},
   { id: "f-thigh-lower-r", name: "Н.треть бедра (прав.)", view: "front",
-    polygon: pf([[163,492],[262,492],[262,532],[163,532]]),
+    polygon: pf([[163,468],[262,468],[262,506],[163,506]]),
     structures: [
       { id: "quad-low-r", name: "Четырёхглавая мышца бедра", type: "muscle" },
       { id: "sartorius-r", name: "Портняжная мышца", type: "muscle" },
     ]},
   // THIGH left (screen-right)
   { id: "f-thigh-upper-l", name: "В.треть бедра (лев.)", view: "front",
-    polygon: pf([[268,408],[378,408],[378,450],[268,450]]),
+    polygon: pf([[268,385],[378,385],[378,428],[268,428]]),
     structures: [
       { id: "quad-upper-l", name: "Четырёхглавая мышца бедра", type: "muscle" },
       { id: "femur-upper-l", name: "Бедренная кость", type: "bone" },
     ]},
   { id: "f-thigh-mid-l", name: "С.треть бедра (лев.)", view: "front",
-    polygon: pf([[268,450],[374,450],[374,492],[268,492]]),
+    polygon: pf([[268,428],[374,428],[374,468],[268,468]]),
     structures: [
       { id: "quad-mid-l", name: "Четырёхглавая мышца бедра", type: "muscle" },
     ]},
   { id: "f-thigh-lower-l", name: "Н.треть бедра (лев.)", view: "front",
-    polygon: pf([[268,492],[370,492],[370,532],[268,532]]),
+    polygon: pf([[268,468],[370,468],[370,506],[268,506]]),
     structures: [
       { id: "quad-low-l", name: "Четырёхглавая мышца бедра", type: "muscle" },
     ]},
 
   // KNEE
   { id: "f-patella-r", name: "Надколенная чашечка (прав.)", view: "front",
-    polygon: pf([[165,530],[262,530],[262,572],[165,572]]),
+    polygon: pf([[165,506],[262,506],[262,536],[165,536]]),
     structures: [
       { id: "patella-r", name: "Надколенник", type: "bone" },
       { id: "patellar-ten-r", name: "Связка надколенника", type: "tendon" },
       { id: "quad-ten-r", name: "Сухожилие квадрицепса", type: "tendon" },
     ]},
   { id: "f-knee-r", name: "Область коленного сустава (прав.)", view: "front",
-    polygon: pf([[163,568],[262,568],[262,615],[163,615]]),
+    polygon: pf([[163,536],[262,536],[262,572],[163,572]]),
     structures: [
       { id: "knee-j-r", name: "Коленный сустав", type: "joint" },
       { id: "acl-r", name: "Передняя крестообразная связка", type: "ligament" },
@@ -337,13 +337,13 @@ export const frontZones: AnatomicalZone[] = [
       { id: "meniscus-r", name: "Мениск", type: "joint" },
     ]},
   { id: "f-patella-l", name: "Надколенная чашечка (лев.)", view: "front",
-    polygon: pf([[268,530],[365,530],[365,572],[268,572]]),
+    polygon: pf([[268,506],[365,506],[365,536],[268,536]]),
     structures: [
       { id: "patella-l", name: "Надколенник", type: "bone" },
       { id: "patellar-ten-l", name: "Связка надколенника", type: "tendon" },
     ]},
   { id: "f-knee-l", name: "Область коленного сустава (лев.)", view: "front",
-    polygon: pf([[268,568],[367,568],[367,615],[268,615]]),
+    polygon: pf([[268,536],[367,536],[367,572],[268,572]]),
     structures: [
       { id: "knee-j-l", name: "Коленный сустав", type: "joint" },
       { id: "acl-l", name: "Передняя крестообразная связка", type: "ligament" },
@@ -352,43 +352,43 @@ export const frontZones: AnatomicalZone[] = [
 
   // SHIN right
   { id: "f-shin-upper-r", name: "В.треть голени (прав.)", view: "front",
-    polygon: pf([[168,613],[255,613],[255,653],[168,653]]),
+    polygon: pf([[168,572],[255,572],[255,612],[168,612]]),
     structures: [
       { id: "tibialis-r", name: "Передняя большеберцовая мышца", type: "muscle" },
       { id: "tibia-upper-r", name: "Большеберцовая кость", type: "bone" },
     ]},
   { id: "f-shin-mid-r", name: "С.треть голени (прав.)", view: "front",
-    polygon: pf([[172,653],[252,653],[252,693],[172,693]]),
+    polygon: pf([[172,612],[252,612],[252,652],[172,652]]),
     structures: [
       { id: "tibialis-mid-r", name: "Большеберцовая мышца", type: "muscle" },
       { id: "peroneus-r", name: "Малоберцовые мышцы", type: "muscle" },
     ]},
   { id: "f-shin-lower-r", name: "Н.треть голени (прав.)", view: "front",
-    polygon: pf([[175,693],[248,693],[248,727],[175,727]]),
+    polygon: pf([[175,652],[248,652],[248,692],[175,692]]),
     structures: [
       { id: "tibialis-low-r", name: "Большеберцовая мышца", type: "muscle" },
       { id: "ankle-ten-r", name: "Сухожилия разгибателей", type: "tendon" },
     ]},
   // SHIN left
   { id: "f-shin-upper-l", name: "В.треть голени (лев.)", view: "front",
-    polygon: pf([[272,613],[362,613],[362,653],[272,653]]),
+    polygon: pf([[272,572],[362,572],[362,612],[272,612]]),
     structures: [
       { id: "tibialis-l", name: "Передняя большеберцовая мышца", type: "muscle" },
     ]},
   { id: "f-shin-mid-l", name: "С.треть голени (лев.)", view: "front",
-    polygon: pf([[276,653],[358,653],[358,693],[276,693]]),
+    polygon: pf([[276,612],[358,612],[358,652],[276,652]]),
     structures: [
       { id: "peroneus-l", name: "Малоберцовые мышцы", type: "muscle" },
     ]},
   { id: "f-shin-lower-l", name: "Н.треть голени (лев.)", view: "front",
-    polygon: pf([[280,693],[354,693],[354,727],[280,727]]),
+    polygon: pf([[280,652],[354,652],[354,692],[280,692]]),
     structures: [
       { id: "ankle-ten-l", name: "Сухожилия разгибателей", type: "tendon" },
     ]},
 
   // FOOT
   { id: "f-foot-r", name: "Стопа (прав.)", view: "front",
-    polygon: pf([[160,725],[262,725],[262,762],[160,762]]),
+    polygon: pf([[160,692],[262,692],[262,762],[160,762]]),
     structures: [
       { id: "ankle-j-r", name: "Голеностопный сустав", type: "joint" },
       { id: "achilles-r", name: "Ахиллово сухожилие", type: "tendon" },
@@ -396,19 +396,19 @@ export const frontZones: AnatomicalZone[] = [
       { id: "calcaneus-r", name: "Пяточная кость", type: "bone" },
     ]},
   { id: "f-foot-l", name: "Стопа (лев.)", view: "front",
-    polygon: pf([[268,725],[370,725],[370,762],[268,762]]),
+    polygon: pf([[268,692],[370,692],[370,762],[268,762]]),
     structures: [
       { id: "ankle-j-l", name: "Голеностопный сустав", type: "joint" },
       { id: "achilles-l", name: "Ахиллово сухожилие", type: "tendon" },
       { id: "calcaneus-l", name: "Пяточная кость", type: "bone" },
     ]},
   { id: "f-ankle-r", name: "Внутренняя лодыжка (прав.)", view: "front",
-    polygon: pf([[248,705],[268,705],[268,740],[248,740]]),
+    polygon: pf([[248,685],[268,685],[268,715],[248,715]]),
     structures: [
       { id: "medial-mall-r", name: "Медиальная лодыжка", type: "bone" },
     ]},
   { id: "f-ankle-l", name: "Внутренняя лодыжка (лев.)", view: "front",
-    polygon: pf([[264,705],[284,705],[284,740],[264,740]]),
+    polygon: pf([[264,685],[284,685],[284,715],[264,715]]),
     structures: [
       { id: "medial-mall-l", name: "Медиальная лодыжка", type: "bone" },
     ]},
@@ -501,14 +501,14 @@ export const backZones: AnatomicalZone[] = [
 
   // GLUTES
   { id: "b-glute-r", name: "Ягодица (прав.)", view: "back",
-    polygon: pb([[168,440],[268,440],[268,525],[168,525]]),
+    polygon: pb([[168,380],[268,380],[268,498],[168,498]]),
     structures: [
       { id: "glut-max-r", name: "Большая ягодичная мышца", type: "muscle" },
       { id: "glut-med-r", name: "Средняя ягодичная мышца", type: "muscle" },
       { id: "piriformis-r", name: "Грушевидная мышца", type: "muscle" },
     ]},
   { id: "b-glute-l", name: "Ягодица (лев.)", view: "back",
-    polygon: pb([[278,440],[378,440],[378,525],[278,525]]),
+    polygon: pb([[278,380],[378,380],[378,498],[278,498]]),
     structures: [
       { id: "glut-max-l", name: "Большая ягодичная мышца", type: "muscle" },
       { id: "glut-med-l", name: "Средняя ягодичная мышца", type: "muscle" },
@@ -583,39 +583,39 @@ export const backZones: AnatomicalZone[] = [
 
   // HAMSTRINGS / POSTERIOR THIGH
   { id: "b-thigh-upper-r", name: "В.треть бедра (прав.)", view: "back",
-    polygon: pb([[162,525],[264,525],[264,570],[162,570]]),
+    polygon: pb([[162,498],[264,498],[264,546],[162,546]]),
     structures: [
       { id: "biceps-fem-r", name: "Двуглавая мышца бедра", type: "muscle" },
       { id: "semit-r", name: "Полусухожильная мышца", type: "muscle" },
     ]},
   { id: "b-thigh-mid-r", name: "С.треть бедра (прав.)", view: "back",
-    polygon: pb([[165,570],[262,570],[262,614],[165,614]]),
+    polygon: pb([[165,546],[262,546],[262,590],[165,590]]),
     structures: [{ id: "hamstring-mid-r", name: "Мышцы задней поверхности бедра", type: "muscle" }]},
   { id: "b-thigh-lower-r", name: "Н.треть бедра (прав.)", view: "back",
-    polygon: pb([[168,614],[260,614],[260,650],[168,650]]),
+    polygon: pb([[168,590],[260,590],[260,630],[168,630]]),
     structures: [{ id: "hamstring-low-r", name: "Мышцы задней поверхности бедра", type: "muscle" }]},
   { id: "b-thigh-upper-l", name: "В.треть бедра (лев.)", view: "back",
-    polygon: pb([[280,525],[382,525],[382,570],[280,570]]),
+    polygon: pb([[280,498],[382,498],[382,546],[280,546]]),
     structures: [
       { id: "biceps-fem-l", name: "Двуглавая мышца бедра", type: "muscle" },
     ]},
   { id: "b-thigh-mid-l", name: "С.треть бедра (лев.)", view: "back",
-    polygon: pb([[280,570],[378,570],[378,614],[280,614]]),
+    polygon: pb([[280,546],[378,546],[378,590],[280,590]]),
     structures: [{ id: "hamstring-mid-l", name: "Мышцы задней поверхности бедра", type: "muscle" }]},
   { id: "b-thigh-lower-l", name: "Н.треть бедра (лев.)", view: "back",
-    polygon: pb([[280,614],[375,614],[375,650],[280,650]]),
+    polygon: pb([[280,590],[375,590],[375,630],[280,630]]),
     structures: [{ id: "hamstring-low-l", name: "Мышцы задней поверхности бедра", type: "muscle" }]},
 
   // POPLITEAL
   { id: "b-popliteal-r", name: "Подколенная ямка (прав.)", view: "back",
-    polygon: pb([[165,648],[260,648],[260,695],[165,695]]),
+    polygon: pb([[165,630],[260,630],[260,672],[165,672]]),
     structures: [
       { id: "popliteal-r", name: "Подколенная ямка", type: "joint" },
       { id: "pcl-r", name: "Задняя крестообразная связка", type: "ligament" },
       { id: "gastroc-top-r", name: "Икроножная мышца (верх)", type: "muscle" },
     ]},
   { id: "b-popliteal-l", name: "Подколенная ямка (лев.)", view: "back",
-    polygon: pb([[280,648],[375,648],[375,695],[280,695]]),
+    polygon: pb([[280,630],[375,630],[375,672],[280,672]]),
     structures: [
       { id: "popliteal-l", name: "Подколенная ямка", type: "joint" },
       { id: "gastroc-top-l", name: "Икроножная мышца (верх)", type: "muscle" },
@@ -623,22 +623,22 @@ export const backZones: AnatomicalZone[] = [
 
   // CALF
   { id: "b-calf-upper-r", name: "В.треть голени (прав.)", view: "back",
-    polygon: pb([[170,692],[258,692],[258,732],[170,732]]),
+    polygon: pb([[170,672],[258,672],[258,715],[170,715]]),
     structures: [
       { id: "gastroc-r", name: "Икроножная мышца", type: "muscle" },
       { id: "soleus-r", name: "Камбаловидная мышца", type: "muscle" },
     ]},
   { id: "b-calf-mid-r", name: "С.треть голени (прав.)", view: "back",
-    polygon: pb([[172,732],[254,732],[254,748],[172,748]]),
+    polygon: pb([[172,715],[254,715],[254,748],[172,748]]),
     structures: [{ id: "gastroc-mid-r", name: "Икроножная мышца", type: "muscle" }]},
   { id: "b-calf-lower-r", name: "Н.треть голени (прав.)", view: "back",
     polygon: pb([[175,748],[250,748],[250,778],[175,778]]),
     structures: [{ id: "achilles-above-r", name: "Ахиллово сухожилие", type: "tendon" }]},
   { id: "b-calf-upper-l", name: "В.треть голени (лев.)", view: "back",
-    polygon: pb([[280,692],[370,692],[370,732],[280,732]]),
+    polygon: pb([[280,672],[370,672],[370,715],[280,715]]),
     structures: [{ id: "gastroc-l", name: "Икроножная мышца", type: "muscle" }]},
   { id: "b-calf-mid-l", name: "С.треть голени (лев.)", view: "back",
-    polygon: pb([[282,732],[368,732],[368,748],[282,748]]),
+    polygon: pb([[282,715],[368,715],[368,748],[282,748]]),
     structures: [{ id: "gastroc-mid-l", name: "Икроножная мышца", type: "muscle" }]},
   { id: "b-calf-lower-l", name: "Н.треть голени (лев.)", view: "back",
     polygon: pb([[285,748],[365,748],[365,778],[285,778]]),
