@@ -23,8 +23,6 @@ sqlite.exec(`
     title TEXT NOT NULL,
     notes TEXT DEFAULT '',
     result TEXT DEFAULT '',
-    pain_point_id TEXT DEFAULT '',
-    pain_point_name TEXT DEFAULT '',
     FOREIGN KEY (entry_id) REFERENCES pain_entries(id) ON DELETE CASCADE
   );
 
@@ -39,11 +37,3 @@ sqlite.exec(`
     FOREIGN KEY (entry_id) REFERENCES pain_entries(id) ON DELETE CASCADE
   );
 `);
-
-// Migrate existing DBs: add new columns if they don't exist yet
-for (const col of [
-  "ALTER TABLE treatments ADD COLUMN pain_point_id TEXT DEFAULT ''",
-  "ALTER TABLE treatments ADD COLUMN pain_point_name TEXT DEFAULT ''",
-]) {
-  try { sqlite.exec(col); } catch (_) { /* column already exists */ }
-}
