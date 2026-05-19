@@ -1,9 +1,10 @@
 import { db } from "./db";
 import {
-  painEntries, treatments, attachments,
+  painEntries, treatments, attachments, painSnapshots,
   type PainEntry, type InsertPainEntry,
   type Treatment, type InsertTreatment,
   type Attachment, type InsertAttachment,
+  type PainSnapshot, type InsertPainSnapshot,
 } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 
@@ -13,6 +14,10 @@ export interface IStorage {
   createEntry(data: InsertPainEntry): PainEntry;
   updateEntry(id: number, data: Partial<InsertPainEntry>): PainEntry | undefined;
   deleteEntry(id: number): boolean;
+
+  getSnapshots(entryId: number): PainSnapshot[];
+  createSnapshot(data: InsertPainSnapshot): PainSnapshot;
+  deleteSnapshot(id: number): boolean;
 
   getTreatments(entryId: number): Treatment[];
   createTreatment(data: InsertTreatment): Treatment;
@@ -40,6 +45,18 @@ export class DatabaseStorage implements IStorage {
   }
   deleteEntry(id: number): boolean {
     const result = db.delete(painEntries).where(eq(painEntries.id, id)).run();
+    return result.changes > 0;
+  }
+
+  // --- Snapshots ---
+  getSnapshots(entryId: number): PainSnapshot[] {
+    return db.select().from(painSnapshots).where(eq(painSnapshots.entryId, entryId)).orderBy(painSnapshots.date).all();
+  }
+  createSnapshot(data: InsertPainSnapshot): PainSnapshot {
+    return db.insert(painSnapshots).values(data).returning().get();
+  }
+  deleteSnapshot(id: number): boolean {
+    const result = db.delete(painSnapshots).where(eq(painSnapshots.id, id)).run();
     return result.changes > 0;
   }
 
