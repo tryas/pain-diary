@@ -214,7 +214,7 @@ export default function EntryDetailPage() {
 
         {/* Tab: Лечение */}
         {!editing && activeTab === "treatment" && (
-          <TreatmentSection entryId={numId} painPoints={points} />
+          <TreatmentSection entryId={numId} />
         )}
 
         {/* Tab: Файлы */}
