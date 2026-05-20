@@ -1,7 +1,8 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { PainEntry, PainPoint, PainSnapshot } from "@shared/schema";
+import { idb } from "@/lib/idb";
+import type { PainPoint } from "@shared/schema";
+import type { IDBEntry, IDBSnapshot } from "@/lib/idb";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Trash2, ChevronRight, Activity, TrendingDown, TrendingUp, Minus as TrendFlat } from "lucide-react";
@@ -15,12 +16,11 @@ const intensityColor = (v: number) => {
   return "#ef4444";
 };
 
-function getPainPoints(entry: PainEntry): PainPoint[] {
+function getPainPoints(entry: IDBEntry): PainPoint[] {
   try { return JSON.parse(entry.painPoints); } catch { return []; }
 }
 
-// Mini sparkline for card
-function MiniSparkline({ data }: { data: PainSnapshot[] }) {
+function MiniSparkline({ data }: { data: IDBSnapshot[] }) {
   if (data.length < 2) return null;
   const W = 60, H = 20, PAD = 2;
   const minV = 0, maxV = 10;
@@ -35,19 +35,17 @@ function MiniSparkline({ data }: { data: PainSnapshot[] }) {
   );
 }
 
-function EntryCard({ entry, onDelete }: { entry: PainEntry; onDelete: (id: number) => void }) {
+function EntryCard({ entry, onDelete }: { entry: IDBEntry; onDelete: (id: number) => void }) {
   const points = getPainPoints(entry);
   const maxIntensity = points.length > 0 ? Math.max(...points.map((p) => p.intensity)) : 0;
   const date = parseISO(entry.date);
 
-  // Fetch snapshots for trend
-  const { data: snapshots = [] } = useQuery<PainSnapshot[]>({
-    queryKey: [`/api/entries/${entry.id}/snapshots`],
-    queryFn: () => fetch(`/api/entries/${entry.id}/snapshots`).then(r => r.json()),
+  const { data: snapshots = [] } = useQuery<IDBSnapshot[]>({
+    queryKey: ["snapshots", entry.id],
+    queryFn: () => idb.getSnapshots(entry.id!),
     staleTime: 30_000,
   });
 
-  // Current intensity: last snapshot or max from pain points
   const currentIntensity = snapshots.length > 0 ? snapshots[snapshots.length - 1].intensity : maxIntensity;
   const trend = snapshots.length >= 2
     ? snapshots[snapshots.length - 1].intensity - snapshots[snapshots.length - 2].intensity
@@ -57,7 +55,7 @@ function EntryCard({ entry, onDelete }: { entry: PainEntry; onDelete: (id: numbe
   const trendColor = trend > 0 ? "text-red-500" : trend < 0 ? "text-green-500" : "text-muted-foreground";
 
   return (
-    <div className="bg-card rounded-2xl border border-border/60 overflow-hidden shadow-sm" data-testid={`entry-card-${entry.id}`}>
+    <div className="bg-card rounded-2xl border border-border/60 overflow-hidden shadow-sm">
       <Link href={`/entry/${entry.id}`}>
         <div className="p-4 cursor-pointer hover:bg-muted/30 transition-colors">
           <div className="flex items-start justify-between gap-3">
@@ -69,7 +67,6 @@ function EntryCard({ entry, onDelete }: { entry: PainEntry; onDelete: (id: numbe
               </div>
               <h3 className="font-semibold text-sm leading-tight mb-2 truncate">{entry.title}</h3>
 
-              {/* Pain zones */}
               {points.length > 0 ? (
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {points.slice(0, 3).map((p) => (
@@ -84,7 +81,6 @@ function EntryCard({ entry, onDelete }: { entry: PainEntry; onDelete: (id: numbe
                 <span className="text-xs text-muted-foreground italic">Нет отмеченных точек</span>
               )}
 
-              {/* Sparkline + trend */}
               {snapshots.length >= 2 && (
                 <div className="flex items-center gap-2 mt-1">
                   <MiniSparkline data={snapshots} />
@@ -110,9 +106,8 @@ function EntryCard({ entry, onDelete }: { entry: PainEntry; onDelete: (id: numbe
       </Link>
       <div className="px-4 py-2 border-t border-border/30 bg-muted/20 flex justify-end">
         <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(entry.id); }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(entry.id!); }}
           className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
-          data-testid={`delete-entry-${entry.id}`}
         >
           <Trash2 className="w-3 h-3" />
           Удалить
@@ -124,15 +119,17 @@ function EntryCard({ entry, onDelete }: { entry: PainEntry; onDelete: (id: numbe
 
 export default function DiaryPage() {
   const { toast } = useToast();
+  const qc = useQueryClient();
 
-  const { data: entries = [], isLoading, isError } = useQuery<PainEntry[]>({
-    queryKey: ["/api/entries"],
+  const { data: entries = [], isLoading } = useQuery<IDBEntry[]>({
+    queryKey: ["entries"],
+    queryFn: () => idb.getEntries(),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/entries/${id}`),
+    mutationFn: (id: number) => idb.deleteEntry(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
+      qc.invalidateQueries({ queryKey: ["entries"] });
       toast({ title: "Запись удалена" });
     },
   });
@@ -152,7 +149,7 @@ export default function DiaryPage() {
           </div>
         </div>
         <Link href="/new">
-          <Button size="sm" className="rounded-xl gap-1.5" data-testid="new-entry-btn">
+          <Button size="sm" className="rounded-xl gap-1.5">
             <Plus className="w-4 h-4" />
             Новая
           </Button>
@@ -162,14 +159,6 @@ export default function DiaryPage() {
       <div className="flex-1 px-4 py-4 flex flex-col gap-4">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)
-        ) : isError ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-20 gap-4 text-center">
-            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-4xl">⚠️</div>
-            <div>
-              <p className="font-semibold text-base">Нет связи с сервером</p>
-              <p className="text-sm text-muted-foreground mt-1">Откройте приложение через ссылку в чате Perplexity</p>
-            </div>
-          </div>
         ) : entries.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center py-20 gap-4 text-center">
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-4xl">🩺</div>
@@ -199,15 +188,14 @@ export default function DiaryPage() {
 }
 
 function pluralEntries(n: number): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
+  const mod10 = n % 10, mod100 = n % 100;
   if (mod10 === 1 && mod100 !== 11) return `${n} запись`;
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return `${n} записи`;
   return `${n} записей`;
 }
 
-function groupByDate(entries: PainEntry[]): Record<string, PainEntry[]> {
-  const groups: Record<string, PainEntry[]> = {};
+function groupByDate(entries: IDBEntry[]): Record<string, IDBEntry[]> {
+  const groups: Record<string, IDBEntry[]> = {};
   for (const entry of entries) {
     try {
       const key = format(parseISO(entry.date), "d MMMM yyyy", { locale: ru });
