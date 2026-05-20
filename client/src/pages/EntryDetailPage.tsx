@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { idb } from "@/lib/idb";
+import type { IDBEntry } from "@/lib/idb";
 import { BodyMap } from "@/components/BodyMap";
 import { TreatmentSection } from "@/components/TreatmentSection";
 import { AttachmentUpload } from "@/components/AttachmentUpload";
@@ -10,7 +11,7 @@ import { DateTimePicker } from "@/components/DateTimePicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { PainEntry, PainPoint } from "@shared/schema";
+import type { PainPoint } from "@shared/schema";
 import { ArrowLeft, Trash2, Edit2, Save, X, Activity, Stethoscope, Paperclip, TrendingUp } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -25,23 +26,25 @@ const VIEW_LABELS: Record<string, string> = {
 };
 const intensityColor = (v: number) => v <= 3 ? "#22c55e" : v <= 6 ? "#f59e0b" : "#ef4444";
 
-function getPainPoints(entry: PainEntry): PainPoint[] {
+function getPainPoints(entry: IDBEntry): PainPoint[] {
   try { return JSON.parse(entry.painPoints); } catch { return []; }
 }
 
 type Tab = "pain" | "dynamics" | "treatment" | "files";
-
 const TABS: { id: Tab; label: string; Icon: React.ElementType }[] = [
-  { id: "pain", label: "Боль", Icon: Activity },
-  { id: "dynamics", label: "Динамика", Icon: TrendingUp },
-  { id: "treatment", label: "Лечение", Icon: Stethoscope },
-  { id: "files", label: "Файлы", Icon: Paperclip },
+  { id: "pain",      label: "Боль",     Icon: Activity   },
+  { id: "dynamics",  label: "Динамика", Icon: TrendingUp  },
+  { id: "treatment", label: "Лечение",  Icon: Stethoscope },
+  { id: "files",     label: "Файлы",    Icon: Paperclip  },
 ];
 
 export default function EntryDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const qc = useQueryClient();
+  const numId = parseInt(id);
+
   const [editing, setEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editNotes, setEditNotes] = useState("");
@@ -49,30 +52,30 @@ export default function EntryDetailPage() {
   const [editDate, setEditDate] = useState(() => new Date());
   const [activeTab, setActiveTab] = useState<Tab>("pain");
 
-  const { data: entry, isLoading } = useQuery<PainEntry>({
-    queryKey: ["/api/entries", parseInt(id)],
-    queryFn: () => apiRequest("GET", `/api/entries/${id}`).then((r) => r.json()),
+  const { data: entry, isLoading } = useQuery<IDBEntry>({
+    queryKey: ["entry", numId],
+    queryFn: () => idb.getEntry(numId) as Promise<IDBEntry>,
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => apiRequest("DELETE", `/api/entries/${id}`),
+    mutationFn: () => idb.deleteEntry(numId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
+      qc.invalidateQueries({ queryKey: ["entries"] });
       navigate("/");
       toast({ title: "Запись удалена" });
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: () => apiRequest("PATCH", `/api/entries/${id}`, {
+    mutationFn: () => idb.updateEntry(numId, {
       title: editTitle.trim() || "Запись без названия",
       date: editDate.toISOString(),
       notes: editNotes,
       painPoints: JSON.stringify(editPoints),
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/entries", parseInt(id)] });
+      qc.invalidateQueries({ queryKey: ["entries"] });
+      qc.invalidateQueries({ queryKey: ["entry", numId] });
       setEditing(false);
       toast({ title: "Запись обновлена" });
     },
@@ -103,14 +106,10 @@ export default function EntryDetailPage() {
 
   const points = getPainPoints(entry);
   const date = parseISO(entry.date);
-  const numId = parseInt(id);
-
-  // For DynamicsSection: initial values from first pain point if available
   const firstPoint = points[0];
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto">
-      {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border/40 px-4 py-3 flex items-center gap-3">
         <button onClick={() => navigate("/")} className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center hover:text-foreground text-muted-foreground transition-colors">
           <ArrowLeft className="w-4 h-4" />
@@ -134,17 +133,12 @@ export default function EntryDetailPage() {
         </div>
       </div>
 
-      {/* Tabs */}
       {!editing && (
         <div className="flex border-b border-border/40 bg-background overflow-x-auto">
           {TABS.map(({ id: tabId, label, Icon }) => (
-            <button
-              key={tabId}
-              onClick={() => setActiveTab(tabId)}
+            <button key={tabId} onClick={() => setActiveTab(tabId)}
               className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${
-                activeTab === tabId
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                activeTab === tabId ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -155,7 +149,6 @@ export default function EntryDetailPage() {
       )}
 
       <div className="flex-1 px-4 py-3 flex flex-col gap-3">
-        {/* Editing mode */}
         {editing && (
           <>
             <div>
@@ -182,11 +175,9 @@ export default function EntryDetailPage() {
           </>
         )}
 
-        {/* Tab: Боль */}
         {!editing && activeTab === "pain" && (
           <>
             <BodyMap painPoints={points} onChange={() => {}} readOnly />
-
             {points.length > 0 && (
               <div className="flex flex-col gap-3">
                 <h2 className="text-sm font-semibold">Детали боли</h2>
@@ -209,7 +200,6 @@ export default function EntryDetailPage() {
                 ))}
               </div>
             )}
-
             {entry.notes ? (
               <div className="bg-muted/30 rounded-2xl p-4 border border-border/40">
                 <p className="text-xs font-semibold text-muted-foreground mb-1">Заметки</p>
@@ -219,24 +209,11 @@ export default function EntryDetailPage() {
           </>
         )}
 
-        {/* Tab: Динамика */}
         {!editing && activeTab === "dynamics" && (
-          <DynamicsSection
-            entryId={numId}
-            initialIntensity={firstPoint?.intensity ?? 5}
-            initialPainType={firstPoint?.painType ?? "aching"}
-          />
+          <DynamicsSection entryId={numId} initialIntensity={firstPoint?.intensity ?? 5} initialPainType={firstPoint?.painType ?? "aching"} />
         )}
-
-        {/* Tab: Лечение */}
-        {!editing && activeTab === "treatment" && (
-          <TreatmentSection entryId={numId} />
-        )}
-
-        {/* Tab: Файлы */}
-        {!editing && activeTab === "files" && (
-          <AttachmentUpload entryId={numId} />
-        )}
+        {!editing && activeTab === "treatment" && <TreatmentSection entryId={numId} />}
+        {!editing && activeTab === "files" && <AttachmentUpload entryId={numId} />}
 
         <div className="h-4" />
       </div>
