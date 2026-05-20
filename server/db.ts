@@ -1,8 +1,16 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "@shared/schema";
+import { existsSync, mkdirSync } from "fs";
+import { join } from "path";
 
-const sqlite = new Database("./data.db");
+// Use persistent disk on Render (/var/data), fall back to local for dev
+const DATA_DIR = existsSync("/var/data") ? "/var/data" : ".";
+if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+const DB_PATH = join(DATA_DIR, "data.db");
+
+const sqlite = new Database(DB_PATH);
+console.log(`[db] Using database at: ${DB_PATH}`);
 export const db = drizzle(sqlite, { schema });
 
 sqlite.exec(`
